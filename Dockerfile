@@ -34,8 +34,8 @@ COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
 WORKDIR /var/www/html
 COPY . /var/www/html
 
-# 8. Instalar dependencias de PHP sin paquetes de desarrollo (optimizando para producción)
-RUN composer install --no-dev --optimize-autoloader --no-interaction
+# 8. Instalar dependencias de PHP ignorando bloqueos estrictos de versión PHP en el lockfile
+RUN composer install --no-dev --optimize-autoloader --no-interaction --ignore-platform-reqs
 
 # 9. Dar permisos de escritura a las carpetas requeridas por Laravel
 RUN chown -R www-data:www-data /var/www/html/storage /var/www/html/bootstrap/cache \

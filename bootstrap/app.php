@@ -12,6 +12,9 @@ return Application::configure(basePath: dirname(__DIR__))
         health: '/up',
     )
     ->withMiddleware(function (Middleware $middleware): void {
+        // Confiar en todos los Proxies de Render para detectar HTTPS correctamente
+        $middleware->trustProxies(at: '*');
+
         // Aseguramos el inicio de sesión y la inyección de $errors en las rutas web
         $middleware->web(append: [
             \Illuminate\Cookie\Middleware\EncryptCookies::class,

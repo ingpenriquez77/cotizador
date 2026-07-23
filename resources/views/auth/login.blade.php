@@ -101,7 +101,7 @@
 
     <div class="text-center w-100" style="max-width: 440px;">
 
-        <!-- Ícono estilizado como Logo (Si prefieres quitarlo por completo, borra este div) -->
+        <!-- Ícono estilizado como Logo -->
         <div class="logo-icon">
             <i class="bi bi-calculator-fill fs-2 text-primary" style="color: #8b5cf6 !important;"></i>
         </div>
@@ -109,8 +109,8 @@
         <!-- Tarjeta del Formulario -->
         <div class="card login-card p-4 p-sm-5 mx-auto">
 
-            <!-- Alertas de error -->
-            @if ($errors->any())
+            <!-- Alertas de error (Con verificación segura) -->
+            @if (isset($errors) && $errors->any())
                 <div class="alert alert-danger p-2 small mb-4 text-start rounded-3" role="alert">
                     <i class="bi bi-exclamation-circle me-1"></i> {{ $errors->first() }}
                 </div>
@@ -146,7 +146,11 @@
 
                 <!-- Botón e Isotipo -->
                 <div class="d-flex align-items-center justify-content-between pt-2">
-                    <a href="#" class="forgot-link">¿Olvidaste tu contraseña?</a>
+                    @if (Route::has('password.request'))
+                        <a href="{{ route('password.request') }}" class="forgot-link">¿Olvidaste tu contraseña?</a>
+                    @else
+                        <a href="#" class="forgot-link">¿Olvidaste tu contraseña?</a>
+                    @endif
                     <button type="submit" class="btn btn-purple px-4">
                         INICIAR SESIÓN
                     </button>
@@ -154,7 +158,7 @@
             </form>
         </div>
 
-        <!-- Pie de página suave -->
+        <!-- Pie de página -->
         <div class="mt-4 text-uppercase small tracking-wider text-muted fw-semibold" style="letter-spacing: 1px; font-size: 0.75rem;">
             SISTEMA DE COTIZACIONES
         </div>

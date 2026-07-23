@@ -22,8 +22,8 @@ class Quote extends Model
     ];
 
     protected $casts = [
-        'issue_date'  => 'date',
-        'valid_until' => 'date',
+        'issue_date' => 'date:Y-m-d',
+        'valid_until' => 'date:Y-m-d',
     ];
 
     public function client()

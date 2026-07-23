@@ -1,27 +1,28 @@
 @extends('layouts.adminlte')
 
-@section('title', 'Nueva Cotización')
-@section('page_title', 'Crear Cotización')
+@section('title', 'Editar Cotización')
+@section('page_title', 'Editar Cotización #' . $quote->folio)
 
 @section('content')
-<form action="{{ route('quotes.store') }}" method="POST" id="quoteForm">
+<form action="{{ route('quotes.update', $quote->id) }}" method="POST" id="quoteForm">
     @csrf
+    @method('PUT')
     <div class="row">
-        <!-- Encabezado de la Cotización -->
+        <!-- Encabezado -->
         <div class="col-md-12 mb-3">
             <div class="card shadow-sm border-0">
                 <div class="card-body">
                     <div class="row g-3">
                         <div class="col-md-3">
                             <label class="form-label fw-bold">Folio</label>
-                            <input type="text" name="folio" class="form-control fw-bold text-primary" value="{{ $folio }}" readonly>
+                            <input type="text" class="form-control fw-bold text-primary" value="{{ $quote->folio }}" readonly>
                         </div>
                         <div class="col-md-5">
                             <label class="form-label fw-bold">Cliente *</label>
                             <select name="client_id" class="form-select" required>
                                 <option value="">-- Seleccionar Cliente --</option>
                                 @foreach($clients as $client)
-                                    <option value="{{ $client->id }}" {{ old('client_id') == $client->id ? 'selected' : '' }}>
+                                    <option value="{{ $client->id }}" {{ $quote->client_id == $client->id ? 'selected' : '' }}>
                                         {{ $client->business_name }} (Contacto: {{ $client->contact_name }})
                                     </option>
                                 @endforeach
@@ -29,25 +30,27 @@
                         </div>
                         <div class="col-md-2">
                             <label class="form-label fw-bold">Fecha Emisión *</label>
-                            <input type="date" name="issue_date" class="form-control" value="{{ date('Y-m-d') }}" required>
+                            <input type="date" name="issue_date" class="form-control"
+                                   value="{{ $quote->issue_date ? \Carbon\Carbon::parse($quote->issue_date)->format('Y-m-d') : date('Y-m-d') }}" required>
                         </div>
                         <div class="col-md-2">
                             <label class="form-label fw-bold">Válida Hasta</label>
-                            <input type="date" name="valid_until" class="form-control" value="{{ date('Y-m-d', strtotime('+15 days')) }}">
+                            <input type="date" name="valid_until" class="form-control"
+                                   value="{{ $quote->valid_until ? \Carbon\Carbon::parse($quote->valid_until)->format('Y-m-d') : '' }}">
                         </div>
                     </div>
                 </div>
             </div>
         </div>
 
-        <!-- Agregar Ítems -->
+        <!-- Tabla de Ítems -->
         <div class="col-md-12 mb-3">
             <div class="card shadow-sm border-0">
                 <div class="card-header bg-white d-flex justify-content-between align-items-center">
                     <h6 class="fw-bold mb-0 text-dark"><i class="bi bi-cart-plus me-2 text-primary"></i>Conceptos y Productos</h6>
                     <div class="d-flex gap-2" style="max-width: 400px;">
                         <select id="productSelect" class="form-select form-select-sm">
-                            <option value="">-- Seleccionar Producto del Catálogo --</option>
+                            <option value="">-- Seleccionar Producto --</option>
                             @foreach($products as $prod)
                                 <option value="{{ $prod->id }}"
                                         data-name="{{ $prod->name }}"
@@ -78,7 +81,43 @@
                                 </tr>
                             </thead>
                             <tbody id="itemsContainer">
-                                {{-- Los ítems dinámicos se renderizan aquí --}}
+                                @foreach($quote->items as $index => $item)
+                                    @php
+                                        $profitAmount = $item->unit_price - $item->cost_price;
+                                    @endphp
+                                    <tr id="row_{{ $index }}">
+                                        <td>
+                                            <input type="hidden" name="items[{{ $index }}][product_id]" value="{{ $item->product_id }}">
+                                            <input type="text" name="items[{{ $index }}][concept]" class="form-control form-control-sm" value="{{ $item->concept }}" required>
+                                        </td>
+                                        <td>
+                                            <input type="number" name="items[{{ $index }}][quantity]" class="form-control form-control-sm qty-input" value="{{ $item->quantity }}" min="1" oninput="recalculate(this)" required>
+                                        </td>
+                                        <td>
+                                            <input type="number" step="0.01" name="items[{{ $index }}][cost_price]" class="form-control form-control-sm cost-input" value="{{ number_format($item->cost_price, 2, '.', '') }}" oninput="recalculate(this)" required>
+                                        </td>
+                                        <td>
+                                            <div class="input-group input-group-sm">
+                                                <input type="number" step="0.1" name="items[{{ $index }}][margin_percentage]" class="form-control form-control-sm margin-input" value="{{ number_format($item->margin_percentage, 2, '.', '') }}" oninput="recalculate(this)" required>
+                                                <span class="input-group-text">%</span>
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <input type="text" class="form-control form-control-sm profit-amount-input bg-light text-success fw-bold" value="${{ number_format($profitAmount, 2, '.', '') }}" readonly>
+                                        </td>
+                                        <td>
+                                            <input type="number" step="0.01" name="items[{{ $index }}][unit_price]" class="form-control form-control-sm unit-price-input" value="{{ number_format($item->unit_price, 2, '.', '') }}" oninput="updateFromUnitPrice(this)" required>
+                                        </td>
+                                        <td>
+                                            <input type="text" class="form-control form-control-sm subtotal-display bg-light fw-bold" value="${{ number_format($item->subtotal, 2, '.', '') }}" readonly>
+                                        </td>
+                                        <td class="text-center">
+                                            <button type="button" class="btn btn-outline-danger btn-sm border-0" onclick="removeRow({{ $index }})">
+                                                <i class="bi bi-trash"></i>
+                                            </button>
+                                        </td>
+                                    </tr>
+                                @endforeach
                             </tbody>
                         </table>
                     </div>
@@ -91,7 +130,7 @@
             <div class="card shadow-sm border-0 h-100">
                 <div class="card-body">
                     <label class="form-label fw-bold">Notas o Condiciones Comerciales</label>
-                    <textarea name="notes" class="form-control" rows="4" placeholder="Ej. Precios sujetos a cambio sin previo aviso. Tiempo de entrega: 3 a 5 días hábiles."></textarea>
+                    <textarea name="notes" class="form-control" rows="4">{{ $quote->notes }}</textarea>
                 </div>
             </div>
         </div>
@@ -113,11 +152,11 @@
                         <span id="lblTotal" class="text-primary">$0.00</span>
                     </div>
                     <div class="d-flex gap-2">
-                        <a href="{{ route('quotes.index') }}" class="btn btn-outline-secondary w-50 fw-bold py-2">
+                        <a href="{{ route('quotes.show', $quote->id) }}" class="btn btn-outline-secondary w-50 fw-bold py-2">
                             <i class="bi bi-x-circle me-1"></i> Cancelar
                         </a>
-                        <button type="submit" class="btn btn-success w-50 fw-bold py-2">
-                            <i class="bi bi-save me-1"></i> Guardar
+                        <button type="submit" class="btn btn-primary w-50 fw-bold py-2">
+                            <i class="bi bi-save me-1"></i> Actualizar
                         </button>
                     </div>
                 </div>
@@ -126,7 +165,7 @@
     </div>
 </form>
 
-{{-- Bloqueo visual del menú lateral durante captura --}}
+{{-- Bloqueo visual del menú lateral durante captura/edición --}}
 <style>
 .main-sidebar {
     pointer-events: none !important;
@@ -139,7 +178,7 @@ document.addEventListener("DOMContentLoaded", function() {
     document.body.classList.add('sidebar-collapse');
 });
 
-let itemIndex = 0;
+let itemIndex = {{ count($quote->items) }};
 
 document.getElementById('quoteForm').addEventListener('keydown', function(e) {
     if (e.key === 'Enter' && e.target.tagName !== 'TEXTAREA') {
@@ -153,15 +192,9 @@ document.getElementById('quoteForm').addEventListener('keydown', function(e) {
 document.getElementById('btnAddProduct').addEventListener('click', function() {
     let select = document.getElementById('productSelect');
     let option = select.options[select.selectedIndex];
-
     if (!option.value) return;
 
-    let pId = option.value;
-    let pName = option.dataset.name;
-    let pCost = parseFloat(option.dataset.cost);
-    let pMargin = parseFloat(option.dataset.margin);
-
-    addRow(pId, pName, pCost, pMargin);
+    addRow(option.value, option.dataset.name, parseFloat(option.dataset.cost), parseFloat(option.dataset.margin));
     select.value = '';
 });
 
@@ -218,18 +251,15 @@ function removeRow(index) {
 
 function recalculate(element) {
     let row = element ? element.closest('tr') : null;
-
     if (row) {
         let cost = parseFloat(row.querySelector('.cost-input').value) || 0;
         let margin = parseFloat(row.querySelector('.margin-input').value) || 0;
-
         let profitAmount = cost * (margin / 100);
         let unitPrice = cost + profitAmount;
 
         row.querySelector('.profit-amount-input').value = '$' + profitAmount.toFixed(2);
         row.querySelector('.unit-price-input').value = unitPrice.toFixed(2);
     }
-
     updateTotals();
 }
 
@@ -272,5 +302,7 @@ function updateTotals() {
     document.getElementById('lblTotalProfit').innerText = '$' + grandProfit.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2});
     document.getElementById('lblTotal').innerText = '$' + grandTotal.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2});
 }
+
+document.addEventListener('DOMContentLoaded', updateTotals);
 </script>
 @endsection

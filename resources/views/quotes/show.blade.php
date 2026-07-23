@@ -10,12 +10,17 @@
             <i class="bi bi-arrow-left me-1"></i> Volver al Listado
         </a>
         <div>
-            <button onclick="window.print();" class="btn btn-primary btn-sm me-1">
-                <i class="bi bi-printer me-1"></i> Imprimir
-            </button>
-            <a href="{{ route('quotes.edit', $quote->id) }}" class="btn btn-warning btn-sm">
-                <i class="bi bi-pencil me-1"></i> Editar
+            <!-- Botón PDF con icono de Hoja -->
+            <a href="{{ route('quotes.pdf', $quote->id) }}" target="_blank" class="btn btn-danger btn-sm me-1">
+                <i class="bi bi-file-earmark-pdf me-1"></i> PDF
             </a>
+
+            {{-- Solo el Administrador puede editar --}}
+            @if(auth()->user()->isAdmin())
+                <a href="{{ route('quotes.edit', $quote->id) }}" class="btn btn-warning btn-sm">
+                    <i class="bi bi-pencil me-1"></i> Editar
+                </a>
+            @endif
         </div>
     </div>
 
@@ -69,8 +74,13 @@
                                 <th>#</th>
                                 <th>Concepto / Descripción</th>
                                 <th class="text-center">Cant.</th>
-                                <th class="text-end">Costo Base</th>
-                                <th class="text-center">Utilidad</th>
+
+                                {{-- Columnas reservadas exclusivamente para el Administrador --}}
+                                @if(auth()->user()->isAdmin())
+                                    <th class="text-end">Costo Base</th>
+                                    <th class="text-center">Utilidad</th>
+                                @endif
+
                                 <th class="text-end">P. Unitario</th>
                                 <th class="text-end">Subtotal</th>
                             </tr>
@@ -81,14 +91,21 @@
                                     <td>{{ $index + 1 }}</td>
                                     <td class="fw-semibold">{{ $item->concept }}</td>
                                     <td class="text-center">{{ $item->quantity }}</td>
-                                    <td class="text-end text-muted">${{ number_format($item->cost_price, 2) }}</td>
-                                    <td class="text-center"><span class="badge bg-light text-dark border">{{ $item->margin_percentage }}%</span></td>
+
+                                    {{-- Valores reservados exclusivamente para el Administrador --}}
+                                    @if(auth()->user()->isAdmin())
+                                        <td class="text-end text-muted">${{ number_format($item->cost_price, 2) }}</td>
+                                        <td class="text-center"><span class="badge bg-light text-dark border">{{ $item->margin_percentage }}%</span></td>
+                                    @endif
+
                                     <td class="text-end">${{ number_format($item->unit_price, 2) }}</td>
                                     <td class="text-end fw-bold">${{ number_format($item->subtotal, 2) }}</td>
                                 </tr>
                             @empty
                                 <tr>
-                                    <td colspan="7" class="text-center py-3 text-muted">Sin conceptos en esta cotización.</td>
+                                    <td colspan="{{ auth()->user()->isAdmin() ? 7 : 5 }}" class="text-center py-3 text-muted">
+                                        Sin conceptos en esta cotización.
+                                    </td>
                                 </tr>
                             @endforelse
                         </tbody>
@@ -113,18 +130,9 @@
     <div class="col-md-5 mb-3">
         <div class="card shadow-sm border-0">
             <div class="card-body">
-                <div class="d-flex justify-content-between mb-2">
-                    <span class="text-muted">Subtotal:</span>
-                    <span class="fw-bold">${{ number_format($quote->subtotal, 2) }}</span>
-                </div>
-                <div class="d-flex justify-content-between mb-2">
-                    <span class="text-muted">IVA (16%):</span>
-                    <span class="fw-bold">${{ number_format($quote->tax, 2) }}</span>
-                </div>
-                <hr>
-                <div class="d-flex justify-content-between fs-4 fw-bold text-dark">
+                <div class="d-flex justify-content-between align-items-center fs-4 fw-bold text-dark">
                     <span>Total:</span>
-                    <span class="text-success">${{ number_format($quote->total, 2) }}</span>
+                    <span class="text-success">${{ number_format($quote->subtotal, 2) }}</span>
                 </div>
             </div>
         </div>
@@ -132,7 +140,6 @@
 </div>
 
 <style>
-/* Estilos limpios para impresión nativa del navegador */
 @media print {
     .btn, .navbar, .main-sidebar, .main-footer {
         display: none !important;

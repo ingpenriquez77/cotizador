@@ -7,6 +7,7 @@ use App\Models\Client;
 use App\Models\Product;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Barryvdh\DomPDF\Facade\Pdf;
 
 class QuoteController extends Controller
 {
@@ -18,6 +19,11 @@ class QuoteController extends Controller
 
     public function create()
     {
+        // Protección de rol: Solo Administrador
+        if (!auth()->user()->isAdmin()) {
+            abort(403, 'No tienes permisos para crear cotizaciones.');
+        }
+
         $clients = Client::orderBy('business_name')->get();
         $products = Product::orderBy('name')->get();
 
@@ -30,6 +36,11 @@ class QuoteController extends Controller
 
     public function store(Request $request)
     {
+        // Protección de rol: Solo Administrador
+        if (!auth()->user()->isAdmin()) {
+            abort(403, 'No tienes permisos para crear cotizaciones.');
+        }
+
         $request->validate([
             'client_id'  => 'required|exists:clients,id',
             'folio'      => 'required|unique:quotes,folio',
@@ -58,7 +69,7 @@ class QuoteController extends Controller
                 $margin     = (float) $item['margin_percentage'];
 
                 // Precio unitario derivado del costo + % de margen
-                $unitPrice  = $cost * (1 + ($margin / 100));
+                $unitPrice  = (float) $item['unit_price'];
                 $itemSub    = $unitPrice * $qty;
                 $subtotal  += $itemSub;
 
@@ -73,14 +84,11 @@ class QuoteController extends Controller
                 ]);
             }
 
-            // Opcional: IVA del 16% (puedes ajustar o volverlo opcional)
-            $tax   = $subtotal * 0.16;
-            $total = $subtotal + $tax;
-
+            // Sin IVA: subtotal = total
             $quote->update([
                 'subtotal' => $subtotal,
-                'tax'      => $tax,
-                'total'    => $total,
+                'tax'      => 0,
+                'total'    => $subtotal,
             ]);
         });
 
@@ -89,18 +97,98 @@ class QuoteController extends Controller
 
     public function show($id)
     {
+        // Permitido para todos los usuarios autenticados
         $quote = Quote::with(['client', 'items.product'])->findOrFail($id);
-
-        // Por el momento puedes retornar una vista vacía o DD para confirmar que funciona
         return view('quotes.show', compact('quote'));
     }
 
     public function destroy($id)
     {
+        // Protección de rol: Solo Administrador
+        if (!auth()->user()->isAdmin()) {
+            abort(403, 'No tienes permisos para eliminar cotizaciones.');
+        }
+
         $quote = Quote::findOrFail($id);
         $quote->items()->delete();
         $quote->delete();
 
         return redirect()->route('quotes.index')->with('success', 'Cotización eliminada correctamente.');
+    }
+
+    public function edit(Quote $quote)
+    {
+        // Protección de rol: Solo Administrador
+        if (!auth()->user()->isAdmin()) {
+            abort(403, 'No tienes permisos para editar cotizaciones.');
+        }
+
+        $quote->load('items');
+        $clients = Client::all();
+        $products = Product::all();
+
+        return view('quotes.edit', compact('quote', 'clients', 'products'));
+    }
+
+    public function update(Request $request, Quote $quote)
+    {
+        // Protección de rol: Solo Administrador
+        if (!auth()->user()->isAdmin()) {
+            abort(403, 'No tienes permisos para editar cotizaciones.');
+        }
+
+        $request->validate([
+            'client_id'  => 'required',
+            'issue_date' => 'required|date',
+            'items'      => 'required|array|min:1',
+        ]);
+
+        $quote->update([
+            'client_id'   => $request->client_id,
+            'issue_date'  => $request->issue_date,
+            'valid_until' => $request->valid_until,
+            'notes'       => $request->notes,
+        ]);
+
+        $quote->items()->delete();
+
+        $grandSubtotal = 0;
+
+        foreach ($request->items as $item) {
+            $cost      = (float) $item['cost_price'];
+            $margin    = (float) $item['margin_percentage'];
+            $unitPrice = (float) $item['unit_price'];
+            $qty       = (int) $item['quantity'];
+
+            $subtotal       = $unitPrice * $qty;
+            $grandSubtotal += $subtotal;
+
+            $quote->items()->create([
+                'product_id'        => $item['product_id'] ?? null,
+                'concept'           => $item['concept'],
+                'quantity'          => $qty,
+                'cost_price'        => $cost,
+                'margin_percentage' => $margin,
+                'unit_price'        => $unitPrice,
+                'subtotal'          => $subtotal,
+            ]);
+        }
+
+        $quote->update([
+            'subtotal' => $grandSubtotal,
+            'tax'      => 0,
+            'total'    => $grandSubtotal,
+        ]);
+
+        return redirect()->route('quotes.show', $quote->id)
+            ->with('success', 'Cotización actualizada correctamente.');
+    }
+
+    public function pdf(Quote $quote)
+    {
+        // Permitido para todos los usuarios autenticados
+        $quote->load('items', 'client');
+        $pdf = Pdf::loadView('quotes.pdf', compact('quote'));
+        return $pdf->stream('Cotizacion_' . $quote->folio . '.pdf');
     }
 }

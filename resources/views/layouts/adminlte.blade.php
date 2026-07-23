@@ -29,8 +29,14 @@
                 </ul>
                 <ul class="navbar-nav ms-auto">
                     <li class="nav-item dropdown">
-                        <a class="nav-link dropdown-toggle" href="#" data-bs-toggle="dropdown">
+                        <a class="nav-link dropdown-toggle d-flex align-items-center gap-2" href="#" data-bs-toggle="dropdown">
                             <span class="d-none d-md-inline fw-semibold">{{ Auth::user()->name ?? 'Usuario' }}</span>
+                            {{-- Badge de Rol --}}
+                            @if(Auth::user()->isAdmin())
+                                <span class="badge bg-primary-subtle text-primary border border-primary-subtle rounded-pill">Admin</span>
+                            @else
+                                <span class="badge bg-secondary-subtle text-secondary border border-secondary-subtle rounded-pill">Lector</span>
+                            @endif
                         </a>
                         <ul class="dropdown-menu dropdown-menu-end shadow-sm border-0">
                             <li>
@@ -66,23 +72,26 @@
                             </a>
                         </li>
 
-                        <!-- Clientes -->
-                        <li class="nav-item">
-                            <a href="{{ route('clients.index') }}" class="nav-link {{ request()->routeIs('clients.*') ? 'active' : '' }}">
-                                <i class="nav-icon bi bi-people"></i>
-                                <p>Clientes</p>
-                            </a>
-                        </li>
+                        {{-- Menús de Administración (Solo Visibles para Admin) --}}
+                        @if(Auth::user()->isAdmin())
+                            <!-- Clientes -->
+                            <li class="nav-item">
+                                <a href="{{ route('clients.index') }}" class="nav-link {{ request()->routeIs('clients.*') ? 'active' : '' }}">
+                                    <i class="nav-icon bi bi-people"></i>
+                                    <p>Clientes</p>
+                                </a>
+                            </li>
 
-                        <!-- Productos -->
-                        <li class="nav-item">
-                            <a href="{{ route('products.index') }}" class="nav-link {{ request()->routeIs('products.*') ? 'active' : '' }}">
-                                <i class="nav-icon bi bi-box-seam"></i>
-                                <p>Productos</p>
-                            </a>
-                        </li>
+                            <!-- Productos -->
+                            <li class="nav-item">
+                                <a href="{{ route('products.index') }}" class="nav-link {{ request()->routeIs('products.*') ? 'active' : '' }}">
+                                    <i class="nav-icon bi bi-box-seam"></i>
+                                    <p>Productos</p>
+                                </a>
+                            </li>
+                        @endif
 
-                        <!-- Cotizaciones -->
+                        <!-- Cotizaciones (Visible para Todos) -->
                         <li class="nav-item">
                             <a href="{{ route('quotes.index') }}" class="nav-link {{ request()->routeIs('quotes.*') ? 'active' : '' }}">
                                 <i class="nav-icon bi bi-file-earmark-text"></i>

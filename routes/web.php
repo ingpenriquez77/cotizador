@@ -53,6 +53,9 @@ Route::middleware('auth')->group(function () {
     // Módulo de Productos (CRUD completo)
     Route::resource('products', ProductController::class);
 
+    // Ruta personalizada para la generación del PDF
+    Route::get('quotes/{quote}/pdf', [QuoteController::class, 'pdf'])->name('quotes.pdf');
+
     // Módulo de Cotizaciones (CRUD completo)
     Route::resource('quotes', QuoteController::class);
 

@@ -4,6 +4,7 @@ use App\Http\Controllers\ClientController;
 use App\Http\Controllers\ProductController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\QuoteController;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Route;
 
@@ -29,8 +30,11 @@ Route::get('/health', function () {
     }
 })->name('health.check');
 
-// Redirección directa al login en lugar del dashboard para evitar rebotes de auth
+// Redirección inteligente según el estado de la sesión
 Route::get('/', function () {
+    if (Auth::check()) {
+        return redirect()->route('dashboard');
+    }
     return redirect()->route('login');
 });
 
@@ -47,10 +51,13 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 
+    // Cotizaciones PDF
     Route::get('quotes/{quote}/pdf', [QuoteController::class, 'pdf'])->name('quotes.pdf');
 
+    // Cotizaciones CRUD
     Route::resource('quotes', QuoteController::class);
 
+    // Módulos protegidos para Administrador
     Route::middleware('admin')->group(function () {
         Route::resource('clients', ClientController::class);
         Route::resource('products', ProductController::class);
@@ -58,5 +65,5 @@ Route::middleware(['auth', 'verified'])->group(function () {
 
 });
 
-// Cargar rutas de autenticación (Login, Logout, etc.)
+// Cargar rutas de autenticación
 require __DIR__.'/auth.php';

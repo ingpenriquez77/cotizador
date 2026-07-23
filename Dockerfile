@@ -1,5 +1,5 @@
-# Usamos PHP 8.2 con Apache para Laravel
-FROM php:8.2-apache
+# Usamos PHP 8.4 con Apache para Laravel (alineado con tu entorno local)
+FROM php:8.4-apache
 
 # 1. Instalar dependencias del sistema operativo
 RUN apt-get update && apt-get install -y \
@@ -34,8 +34,8 @@ COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
 WORKDIR /var/www/html
 COPY . /var/www/html
 
-# 8. Instalar dependencias de PHP ignorando bloqueos estrictos de versión PHP en el lockfile
-RUN composer install --no-dev --optimize-autoloader --no-interaction --ignore-platform-reqs
+# 8. Instalar dependencias de PHP para producción
+RUN composer install --no-dev --optimize-autoloader --no-interaction
 
 # 9. Dar permisos de escritura a las carpetas requeridas por Laravel
 RUN chown -R www-data:www-data /var/www/html/storage /var/www/html/bootstrap/cache \

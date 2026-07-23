@@ -123,7 +123,7 @@
                 <div class="text-start mb-3">
                     <label for="email" class="form-label">Usuario</label>
                     <input type="email" name="email" id="email"
-                           class="form-control @error('email') is-invalid @enderror"
+                           class="form-control {{ (isset($errors) && $errors->has('email')) ? 'is-invalid' : '' }}"
                            placeholder="Ingresa tu usuario"
                            value="{{ old('email') }}" required autofocus autocomplete="username">
                 </div>
@@ -132,7 +132,7 @@
                 <div class="text-start mb-3">
                     <label for="password" class="form-label">Contraseña</label>
                     <input type="password" name="password" id="password"
-                           class="form-control @error('password') is-invalid @enderror"
+                           class="form-control {{ (isset($errors) && $errors->has('password')) ? 'is-invalid' : '' }}"
                            placeholder="••••••••" required autocomplete="current-password">
                 </div>
 

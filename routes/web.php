@@ -29,37 +29,34 @@ Route::get('/health', function () {
     }
 })->name('health.check');
 
-// Redireccionar la raíz
+// Redirección directa al login en lugar del dashboard para evitar rebotes de auth
 Route::get('/', function () {
-    return redirect()->route('dashboard');
+    return redirect()->route('login');
 });
 
-// Dashboard
-Route::get('/dashboard', function () {
-    return view('dashboard');
-})->middleware(['auth', 'verified'])->name('dashboard');
-
 // Rutas protegidas por Autenticación
-Route::middleware('auth')->group(function () {
+Route::middleware(['auth', 'verified'])->group(function () {
+
+    // Dashboard
+    Route::get('/dashboard', function () {
+        return view('dashboard');
+    })->name('dashboard');
 
     // Perfil
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 
-    // Módulo de Clientes (CRUD completo)
-    Route::resource('clients', ClientController::class);
-
-    // Módulo de Productos (CRUD completo)
-    Route::resource('products', ProductController::class);
-
-    // Ruta personalizada para la generación del PDF
     Route::get('quotes/{quote}/pdf', [QuoteController::class, 'pdf'])->name('quotes.pdf');
 
-    // Módulo de Cotizaciones (CRUD completo)
     Route::resource('quotes', QuoteController::class);
+
+    Route::middleware('admin')->group(function () {
+        Route::resource('clients', ClientController::class);
+        Route::resource('products', ProductController::class);
+    });
 
 });
 
-// Cargar rutas de autenticación
+// Cargar rutas de autenticación (Login, Logout, etc.)
 require __DIR__.'/auth.php';

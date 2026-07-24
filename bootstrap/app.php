@@ -12,7 +12,7 @@ return Application::configure(basePath: dirname(__DIR__))
         health: '/up',
     )
     ->withMiddleware(function (Middleware $middleware) {
-        // Le dice a Laravel que confíe en los Headers HTTPS que envía Render
+        // Headers de proxy para Render
         $middleware->trustProxies(at: '*', headers: Request::HEADER_X_FORWARDED_FOR |
             Request::HEADER_X_FORWARDED_HOST |
             Request::HEADER_X_FORWARDED_PORT |
@@ -24,6 +24,11 @@ return Application::configure(basePath: dirname(__DIR__))
             guests: '/login',
             users: '/dashboard'
         );
+
+        // REGISTRAR EL ALIAS ADMIN AQUÍ:
+        $middleware->alias([
+            'admin' => \App\Http\Middleware\AdminMiddleware::class,
+        ]);
     })
     ->withExceptions(function (Exceptions $exceptions) {
         //

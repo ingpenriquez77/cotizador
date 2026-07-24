@@ -29,12 +29,12 @@ Route::get('/health', function () {
     }
 })->name('health.check');
 
-// Ruta raíz: Redirige directamente al nombre de la ruta de login para evitar bucles
+// Ruta raíz: Redirige directamente al nombre de la ruta de login
 Route::get('/', function () {
     return redirect()->route('login');
 });
 
-// Rutas protegidas por Autenticación
+// Rutas protegidas por Autenticación (Acceso para Admin y Viewer)
 Route::middleware(['auth'])->group(function () {
 
     // Dashboard
@@ -47,13 +47,11 @@ Route::middleware(['auth'])->group(function () {
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 
-    // Cotizaciones PDF
+    // Cotizaciones PDF y CRUD (Viewer y Admin pueden entrar)
     Route::get('quotes/{quote}/pdf', [QuoteController::class, 'pdf'])->name('quotes.pdf');
-
-    // Cotizaciones CRUD
     Route::resource('quotes', QuoteController::class);
 
-    // Módulos protegidos para Administrador
+    // Módulos protegidos Exclusivos para Administrador
     Route::middleware('admin')->group(function () {
         Route::resource('clients', ClientController::class);
         Route::resource('products', ProductController::class);

@@ -30,16 +30,16 @@ Route::get('/health', function () {
     }
 })->name('health.check');
 
-// Redirección inteligente según el estado de la sesión
+// RUTA RAÍZ: Si está logueado va al dashboard, si no, MUESTRA el login directamente sin redirigir
 Route::get('/', function () {
     if (Auth::check()) {
         return redirect()->route('dashboard');
     }
-    return redirect()->route('login');
+    return view('auth.login');
 });
 
-// Rutas protegidas por Autenticación
-Route::middleware(['auth', 'verified'])->group(function () {
+// Rutas protegidas por Autenticación (Quitamos 'verified' para evitar bloqueos si no usan email)
+Route::middleware(['auth'])->group(function () {
 
     // Dashboard
     Route::get('/dashboard', function () {

@@ -30,7 +30,7 @@ Route::get('/health', function () {
     }
 })->name('health.check');
 
-// RUTA RAÍZ: Si está logueado va al dashboard, si no, MUESTRA el login directamente sin redirigir
+// RUTA RAÍZ: Muestra el login directamente si no hay sesión, o envía al dashboard
 Route::get('/', function () {
     if (Auth::check()) {
         return redirect()->route('dashboard');
@@ -38,7 +38,7 @@ Route::get('/', function () {
     return view('auth.login');
 });
 
-// Rutas protegidas por Autenticación (Quitamos 'verified' para evitar bloqueos si no usan email)
+// Rutas protegidas por Autenticación
 Route::middleware(['auth'])->group(function () {
 
     // Dashboard
@@ -65,5 +65,5 @@ Route::middleware(['auth'])->group(function () {
 
 });
 
-// Cargar rutas de autenticación
+// Cargar rutas de autenticación de Breeze (login, register, logout, etc.)
 require __DIR__.'/auth.php';

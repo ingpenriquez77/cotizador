@@ -12,10 +12,15 @@ return Application::configure(basePath: dirname(__DIR__))
         health: '/up',
     )
     ->withMiddleware(function (Middleware $middleware) {
-        // Confía en los proxies inversos de Render
-        $middleware->trustProxies(at: '*');
+        // 1. Decirle a Laravel que confíe en TODOS los headers del Proxy de Render (HTTPS, Host, Port)
+        $middleware->trustProxies(at: '*', headers: Request::HEADER_X_FORWARDED_FOR |
+            Request::HEADER_X_FORWARDED_HOST |
+            Request::HEADER_X_FORWARDED_PORT |
+            Request::HEADER_X_FORWARDED_PROTO |
+            Request::HEADER_X_FORWARDED_AWS_ELB
+        );
 
-        // Redirigir a los invitados de forma limpia a /login
+        // 2. Definir las redirecciones
         $middleware->redirectTo(
             guests: '/login',
             users: '/dashboard'

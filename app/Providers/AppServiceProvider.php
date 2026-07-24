@@ -2,8 +2,8 @@
 
 namespace App\Providers;
 
-use Illuminate\Support\Facades\URL;
 use Illuminate\Support\ServiceProvider;
+use Illuminate\Support\Facades\URL;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -20,8 +20,7 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
-        // Forzar HTTPS en producción para evitar bucles de redirección en Render
-        if (config('app.env') === 'production' || request()->server->has('HTTP_X_FORWARDED_PROTO')) {
+        if (config('app.env') === 'production' || request()->header('X-Forwarded-Proto') === 'https') {
             URL::forceScheme('https');
         }
     }

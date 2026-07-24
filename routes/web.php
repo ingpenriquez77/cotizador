@@ -30,7 +30,7 @@ Route::get('/health', function () {
     }
 })->name('health.check');
 
-// RUTA RAÍZ: Muestra el login directamente si no hay sesión, o envía al dashboard
+// Ruta raíz
 Route::get('/', function () {
     if (Auth::check()) {
         return redirect()->route('dashboard');
@@ -65,5 +65,7 @@ Route::middleware(['auth'])->group(function () {
 
 });
 
-// Cargar rutas de autenticación de Breeze (login, register, logout, etc.)
-require __DIR__.'/auth.php';
+// IMPORTANTE: Cargar rutas de auth dentro del middleware 'web' para habilitar las sesiones
+Route::middleware('web')->group(function () {
+    require __DIR__.'/auth.php';
+});

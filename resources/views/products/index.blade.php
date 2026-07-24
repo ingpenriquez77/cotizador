@@ -179,7 +179,7 @@
                                         'acteck'    => 'acteck.com',
                                         'logitech'  => 'logitech.com',
                                         'ec line'   => 'eclinepos.com',
-                                        'evotec'    => 'evotec.mx',
+                                        'evotec'    => 'grupoevotec.com.mx',
                                         'vorago'    => 'voragolive.com',
                                         'eleventa'  => 'eleventa.com',
                                     ];

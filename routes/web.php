@@ -4,7 +4,6 @@ use App\Http\Controllers\ClientController;
 use App\Http\Controllers\ProductController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\QuoteController;
-use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Route;
 
@@ -30,12 +29,9 @@ Route::get('/health', function () {
     }
 })->name('health.check');
 
-// Ruta raíz
+// Ruta raíz: Redirige directamente al nombre de la ruta de login para evitar bucles
 Route::get('/', function () {
-    if (Auth::check()) {
-        return redirect()->route('dashboard');
-    }
-    return view('auth.login');
+    return redirect()->route('login');
 });
 
 // Rutas protegidas por Autenticación

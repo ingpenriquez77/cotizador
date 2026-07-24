@@ -20,8 +20,8 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
-        // Forzar protocolo HTTPS en producción / Render
-        if (app()->environment('production') || config('app.env') !== 'local') {
+        // Forzar HTTPS en producción para evitar bucles de redirección en Render
+        if (config('app.env') === 'production' || request()->server->has('HTTP_X_FORWARDED_PROTO')) {
             URL::forceScheme('https');
         }
     }

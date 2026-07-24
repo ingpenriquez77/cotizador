@@ -3,7 +3,7 @@
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
 use Illuminate\Foundation\Configuration\Middleware;
-use Illuminate\Http\Request;
+use Illuminate\Support\Facades\URL;
 
 return Application::configure(basePath: dirname(__DIR__))
     ->withRouting(
@@ -12,8 +12,14 @@ return Application::configure(basePath: dirname(__DIR__))
         health: '/up',
     )
     ->withMiddleware(function (Middleware $middleware) {
-        // OBLIGATORIO PARA RENDER: Confiar en las cabeceras de HTTPS
+        // Confiar en los proxies de Render
         $middleware->trustProxies(at: '*');
+    })
+    ->booted(function () {
+        // Forzar HTTPS en todas las URLs generadas si estamos en producción
+        if (app()->environment('production') || config('app.url') !== 'http://localhost') {
+            URL::forceScheme('https');
+        }
     })
     ->withExceptions(function (Exceptions $exceptions) {
         //

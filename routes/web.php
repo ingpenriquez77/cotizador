@@ -65,7 +65,5 @@ Route::middleware(['auth'])->group(function () {
 
 });
 
-// IMPORTANTE: Cargar rutas de auth dentro del middleware 'web' para habilitar las sesiones
-Route::middleware('web')->group(function () {
-    require __DIR__.'/auth.php';
-});
+// Cargar rutas de autenticación
+require __DIR__.'/auth.php';

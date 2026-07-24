@@ -6,16 +6,16 @@ use Illuminate\Foundation\Configuration\Middleware;
 
 return Application::configure(basePath: dirname(__DIR__))
     ->withRouting(
-        web: [
-            __DIR__.'/../routes/web.php',
-            __DIR__.'/../routes/auth.php',
-        ],
+        web: __DIR__.'/../routes/web.php',
         commands: __DIR__.'/../routes/console.php',
         health: '/up',
     )
     ->withMiddleware(function (Middleware $middleware) {
         // Confía en los proxies HTTPS de Render
         $middleware->trustProxies(at: '*');
+
+        // Asegura que el estado con sesión esté activo para las peticiones web
+        $middleware->statefulApi();
     })
     ->withExceptions(function (Exceptions $exceptions) {
         //

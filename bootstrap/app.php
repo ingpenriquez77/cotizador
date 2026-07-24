@@ -3,7 +3,6 @@
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
 use Illuminate\Foundation\Configuration\Middleware;
-use Illuminate\Http\Request;
 
 return Application::configure(basePath: dirname(__DIR__))
     ->withRouting(
@@ -12,18 +11,8 @@ return Application::configure(basePath: dirname(__DIR__))
         health: '/up',
     )
     ->withMiddleware(function (Middleware $middleware) {
-        // Confía en los proxies de Render (terminación SSL de Render)
+        // Confía en el proxy de Render para la terminación SSL/HTTPS
         $middleware->trustProxies(at: '*');
-
-        // Fuerza el uso del middleware 'web' que inicia la sesión
-        $middleware->web(append: [
-            \Illuminate\Cookie\Middleware\EncryptCookies::class,
-            \Illuminate\Cookie\Middleware\AddQueuedCookiesToResponse::class,
-            \Illuminate\Session\Middleware\StartSession::class,
-            \Illuminate\View\Middleware\ShareErrorsFromSession::class,
-            \Illuminate\Foundation\Http\Middleware\ValidateCsrfToken::class,
-            \Illuminate\Routing\Middleware\SubstituteBindings::class,
-        ]);
     })
     ->withExceptions(function (Exceptions $exceptions) {
         //

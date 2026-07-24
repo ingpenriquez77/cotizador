@@ -8,16 +8,15 @@ use Illuminate\Support\Facades\URL;
 class AppServiceProvider extends ServiceProvider
 {
     /**
-     * Register any application services.
+     * El camino por defecto tras autenticarse.
      */
+    public const HOME = '/dashboard';
+
     public function register(): void
     {
         //
     }
 
-    /**
-     * Bootstrap any application services.
-     */
     public function boot(): void
     {
         if (config('app.env') === 'production' || request()->header('X-Forwarded-Proto') === 'https') {

@@ -44,5 +44,5 @@ RUN chown -R www-data:www-data /var/www/html/storage /var/www/html/bootstrap/cac
 # 10. Puerto por defecto expuesto
 EXPOSE 80
 
-# 11. Limpieza total de cachés, migraciones, seeders y recacheado optimizado
-CMD ["sh", "-c", "php artisan optimize:clear && php artisan migrate --force && php artisan db:seed --force && php artisan optimize && apache2-foreground"]
+# 11. Limpieza de cachés, ejecución segura de migraciones/seeders y arranque de Apache
+CMD ["sh", "-c", "php artisan config:clear && php artisan migrate --force && php artisan db:seed --force && php artisan config:cache && php artisan route:cache && apache2-foreground"]

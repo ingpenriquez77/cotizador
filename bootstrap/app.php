@@ -12,7 +12,7 @@ return Application::configure(basePath: dirname(__DIR__))
         health: '/up',
     )
     ->withMiddleware(function (Middleware $middleware) {
-        // 1. Decirle a Laravel que confíe en TODOS los headers del Proxy de Render (HTTPS, Host, Port)
+        // Le dice a Laravel que confíe en los Headers HTTPS que envía Render
         $middleware->trustProxies(at: '*', headers: Request::HEADER_X_FORWARDED_FOR |
             Request::HEADER_X_FORWARDED_HOST |
             Request::HEADER_X_FORWARDED_PORT |
@@ -20,7 +20,6 @@ return Application::configure(basePath: dirname(__DIR__))
             Request::HEADER_X_FORWARDED_AWS_ELB
         );
 
-        // 2. Definir las redirecciones
         $middleware->redirectTo(
             guests: '/login',
             users: '/dashboard'

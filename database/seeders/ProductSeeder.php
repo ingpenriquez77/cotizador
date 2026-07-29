@@ -94,6 +94,14 @@ class ProductSeeder extends Seeder
                 'supplier_link' => 'https://www.cyberpuerta.mx/Energia/Proteccion-Contra-Descargas/No-Break-UPS/No-Break-UPS/No-Break-Vorago-UPS-301-Offline-480W-800-VA-Entrada-110V-120V-Salida-110V-120V.html',
             ],
             [
+                'brand'         => 'Evotec',
+                'name'          => 'Evotec EV-3001',
+                'description'   => 'Evotec EV-3001 Lector de Código de Barras Láser, 1D - Incluye Cable USB',
+                'cost_price'    => 392,
+                'has_margin'    => true,
+                'supplier_link' => 'https://www.cyberpuerta.mx/Punto-de-Venta-POS/Lectores-y-Terminales/Lectores-de-Codigo-de-Barras/Evotec-EV-3001-Lector-de-Codigo-de-Barras-Laser-1D-Incluye-Cable-USB.html',
+            ],
+            [
                 'brand'         => 'eleventa',
                 'name'          => 'eleventa Punto de Venta MonoCaja',
                 'description'   => 'eleventa Punto de Venta MonoCaja (Licencia Anual)',

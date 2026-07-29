@@ -10,22 +10,35 @@ use Illuminate\Support\Facades\Route;
 // Endpoint para verificar el estatus del sistema (Health Check adaptable a MongoDB)
 Route::get('/health', function () {
     try {
-        // Comando nativo 'ping' para verificar conexión activa con MongoDB
-        DB::connection()->command(['ping' => 1]);
+        $db = DB::connection('mongodb')->getMongoDB();
+        $buildInfo = $db->command(['buildInfo' => 1])->toArray()[0];
+        $serverStatus = $db->command(['serverStatus' => 1])->toArray()[0];
+
+        // Convertimos el tiempo UTC de Mongo al tiempo local configurado en la App
+        $mongoTime = isset($serverStatus['localTime'])
+            ? \Carbon\Carbon::parse($serverStatus['localTime']->toDateTime())->timezone(config('app.timezone'))->format('Y-m-d H:i:s T')
+            : now()->format('Y-m-d H:i:s T');
 
         return response()->json([
-            'status'    => 'OK',
-            'app'       => config('app.name'),
-            'database'  => 'connected',
-            'timestamp' => now()->toIso8601String(),
+            'servidor' => [
+                'nombre_aplicacion' => config('app.name'),
+                'version_php'        => PHP_VERSION,
+                'version_laravel'    => app()->version(),
+                'hora_servidor'      => now()->format('Y-m-d H:i:s T'),
+            ],
+            'base_de_datos' => [
+                'motor'         => 'MongoDB',
+                'nombre_bd'     => DB::connection('mongodb')->getDatabaseName(),
+                'version_bd'    => $buildInfo['version'] ?? 'Desconocida',
+                'hora_fecha_bd' => $mongoTime,
+            ]
         ], 200);
+
     } catch (\Exception $e) {
         return response()->json([
-            'status'    => 'ERROR',
-            'app'       => config('app.name'),
-            'database'  => 'disconnected',
-            'message'   => $e->getMessage(),
-            'timestamp' => now()->toIso8601String(),
+            'status'  => 'ERROR',
+            'mensaje' => 'Error al conectar con la base de datos',
+            'error'   => $e->getMessage(),
         ], 500);
     }
 })->name('health.check');

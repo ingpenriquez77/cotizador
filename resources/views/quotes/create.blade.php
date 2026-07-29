@@ -52,7 +52,7 @@
                                 <option value="{{ $prod->id }}"
                                         data-name="{{ $prod->name }}"
                                         data-cost="{{ $prod->cost_price }}"
-                                        data-margin="{{ $prod->has_margin ? 30 : 0 }}">
+                                        data-margin="{{ $prod->has_margin ? 20 : 0 }}">
                                     {{ $prod->name }} (${{ number_format($prod->cost_price, 2) }})
                                 </option>
                             @endforeach

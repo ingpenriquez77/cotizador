@@ -9,50 +9,65 @@ class ClientController extends Controller
 {
     public function index(Request $request)
     {
-        $search = $request->get('search');
+        $search = trim($request->get('search'));
 
-        $clients = Client::when($search, function($query, $search) {
-            return $query->where('name', 'like', "%{$search}%")
-                         ->orWhere('email', 'like', "%{$search}%")
-                         ->orWhere('phone', 'like', "%{$search}%");
-        })->latest()->paginate(10);
+        // Búsqueda insensible a mayúsculas/minúsculas usando Regex en MongoDB
+        $clients = Client::when($search, function ($query, $search) {
+            return $query->where(function ($q) use ($search) {
+                $q->where('business_name', 'regex', "/{$search}/i")
+                  ->orWhere('contact_name', 'regex', "/{$search}/i")
+                  ->orWhere('email', 'regex', "/{$search}/i")
+                  ->orWhere('phone', 'regex', "/{$search}/i")
+                  ->orWhere('rfc', 'regex', "/{$search}/i");
+            });
+        })->latest()->paginate(10)->appends(['search' => $search]);
+
+        // Si es una petición AJAX (filtrado instantáneo sin recargar pantalla)
+        if ($request->ajax()) {
+            return view('clients.index', compact('clients'))->render();
+        }
 
         return view('clients.index', compact('clients'));
     }
 
     public function store(Request $request)
     {
-        $request->validate([
-            'name' => 'required|string|max:255',
-            'contact' => 'nullable|string|max:255',
-            'phone' => 'nullable|string|max:20',
-            'email' => 'nullable|email|max:255',
-            'status' => 'required|in:activo,inactivo',
+        $validatedData = $request->validate([
+            'business_name' => 'required|string|max:255',
+            'contact_name'  => 'required|string|max:255',
+            'phone'         => 'required|string|max:20',
+            'email'         => 'nullable|email|max:255',
+            'status'        => 'required|in:activo,inactivo',
+            'address'       => 'nullable|string',
+            'rfc'           => 'nullable|string|max:13',
         ]);
 
-        Client::create($request->all());
+        Client::create($validatedData);
 
-        return redirect()->route('clients.index')->with('success', 'Registro creado correctamente.');
+        return redirect()->route('clients.index')->with('success', 'Cliente registrado correctamente.');
     }
 
     public function update(Request $request, Client $client)
     {
-        $request->validate([
-            'name' => 'required|string|max:255',
-            'contact' => 'nullable|string|max:255',
-            'phone' => 'nullable|string|max:20',
-            'email' => 'nullable|email|max:255',
-            'status' => 'required|in:activo,inactivo',
+        $validatedData = $request->validate([
+            'business_name' => 'required|string|max:255',
+            'contact_name'  => 'required|string|max:255',
+            'phone'         => 'required|string|max:20',
+            'email'         => 'nullable|email|max:255',
+            'status'        => 'required|in:activo,inactivo',
+            'address'       => 'nullable|string',
+            'rfc'           => 'nullable|string|max:13',
         ]);
 
-        $client->update($request->all());
+        $client->update($validatedData);
 
-        return redirect()->route('clients.index')->with('success', 'Registro actualizado correctamente.');
+        return redirect()->route('clients.index')->with('success', 'Cliente actualizado correctamente.');
     }
 
     public function destroy(Client $client)
     {
         $client->delete();
-        return redirect()->route('clients.index')->with('success', 'Registro eliminado correctamente.');
+
+        return redirect()->route('clients.index')->with('success', 'Cliente eliminado correctamente.');
     }
 }

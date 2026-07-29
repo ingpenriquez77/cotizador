@@ -1,22 +1,29 @@
 <?php
 
 use Illuminate\Database\Migrations\Migration;
-use Illuminate\Database\Schema\Blueprint;
+use MongoDB\Laravel\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
 {
+    /**
+     * Run the migrations.
+     */
     public function up(): void
     {
-        Schema::table('users', function (Blueprint $table) {
-            $table->string('role')->default('viewer')->after('email'); // 'admin' o 'viewer'
+        Schema::connection('mongodb')->table('users', function (Blueprint $collection) {
+            // Indexamos el campo role para optimizar consultas y middlewares de permisos
+            $collection->index('role');
         });
     }
 
+    /**
+     * Reverse the migrations.
+     */
     public function down(): void
     {
-        Schema::table('users', function (Blueprint $table) {
-            $table->dropColumn('role');
+        Schema::connection('mongodb')->table('users', function (Blueprint $collection) {
+            $collection->dropIndex(['role']);
         });
     }
 };

@@ -39,8 +39,8 @@
         border: 1px solid #e5e7eb;
     }
     .brand-logo-img {
-        width: 26px;
-        height: 26px;
+        width: 20px;
+        height: 20px;
         object-fit: contain;
         border-radius: 4px;
         background-color: #ffffff;
@@ -128,203 +128,266 @@
             </div>
 
             <div class="d-flex align-items-center gap-2 w-100 w-md-auto" style="max-width: 500px;">
-                <!-- Filtro Instantáneo -->
+                <!-- Buscador Server-Side (AJAX) -->
                 <div class="input-group">
                     <span class="input-group-text bg-white border-end-0 text-muted">
                         <i class="bi bi-search"></i>
                     </span>
-                    <input type="text" id="tableSearch" class="form-control border-start-0 ps-0" placeholder="Buscar por producto, marca...">
+                    <input type="text" 
+                           id="tableSearch" 
+                           class="form-control border-start-0 ps-0" 
+                           placeholder="Buscar por producto, marca..." 
+                           value="{{ request('search') }}"
+                           autocomplete="off">
                 </div>
 
-                <!-- Botón Nuevo -->
                 <button type="button" class="btn btn-purple text-nowrap" data-bs-toggle="modal" data-bs-target="#createModal">
                     <i class="bi bi-plus-lg me-1"></i> Nuevo Producto
                 </button>
             </div>
         </div>
 
-        <!-- Tabla Productos -->
-        <div class="table-responsive">
-            <table class="table table-custom align-middle" id="dataTable">
-                <thead>
-                    <tr>
-                        <th style="width: 50px;">ID</th>
-                        <th>PRODUCTO / DESCRIPCIÓN</th>
-                        <th>MARCA</th>
-                        <th>COSTO BASE</th>
-                        <th>PRECIO VENTA</th>
-                        <th class="text-center">PROVEEDOR</th>
-                        <th class="text-end">ACCIONES</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    @forelse($products as $product)
-                    <tr>
-                        <td class="fw-bold text-dark">{{ $product->id }}</td>
-                        <td>
-                            <div class="fw-semibold text-dark">{{ $product->name }}</div>
-                            @if($product->description)
-                                <small class="text-muted d-block text-truncate" style="max-width: 300px;">{{ $product->description }}</small>
-                            @endif
-                        </td>
-                        <td>
-                            @if($product->brand)
-                                @php
-                                    // Mapeo con URLs directas completas con protocolo HTTPS
-                                    $brandDomains = [
-                                        'amd'       => 'amd.com',
-                                        'asus'      => 'asus.com',
-                                        'xpg'       => 'xpg.com',
-                                        'kingston'  => 'kingston.com',
-                                        'acteck'    => 'acteck.com',
-                                        'logitech'  => 'logitech.com',
-                                        'ec line'   => 'eclinepos.com',
-                                        'evotec'    => 'grupoevotec.com.mx',
-                                        'vorago'    => 'voragolive.com',
-                                        'eleventa'  => 'eleventa.com',
+        <!-- Contenedor general que se actualizará con la búsqueda -->
+        <div id="table-wrapper">
+            <!-- Tabla Productos -->
+            <div class="table-responsive">
+                <table class="table table-custom align-middle" id="dataTable">
+                    <thead>
+                        <tr>
+                            <th style="width: 50px;">ID</th>
+                            <th>PRODUCTO / DESCRIPCIÓN</th>
+                            <th>MARCA</th>
+                            <th>COSTO BASE</th>
+                            <th class="text-success">UTILIDAD (+20%)</th>
+                            <th>PRECIO VENTA</th>
+                            <th class="text-center">PROVEEDOR</th>
+                            <th class="text-end">ACCIONES</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @forelse($products as $product)
+                        <tr class="product-row">
+                            <td class="fw-bold text-dark">{{ $product->id }}</td>
+                            <td>
+                                <div class="fw-semibold text-dark">{{ $product->name }}</div>
+                                @if($product->description)
+                                    <small class="text-muted d-block text-truncate" style="max-width: 300px;">{{ $product->description }}</small>
+                                @endif
+                            </td>
+                            <td>
+                                @if($product->brand)
+                                    @php
+                                        $brandDomains = [
+                                        // Procesadores y Gráficos
+                                        'amd'          => 'amd.com',
+                                        'intel'        => 'intel.com',
+                                        'nvidia'       => 'nvidia.com',
+
+                                        // Fabricantes de Computadoras y Laptops
+                                        'asus'         => 'asus.com',
+                                        'hp'           => 'hp.com',
+                                        'hewlett packard' => 'hp.com',
+                                        'dell'         => 'dell.com',
+                                        'lenovo'       => 'lenovo.com',
+                                        'acer'         => 'acer.com',
+                                        'msi'          => 'msi.com',
+                                        'apple'        => 'apple.com',
+                                        'gigabyte'     => 'gigabyte.com',
+
+                                        // Componentes, Memorias y Almacenamiento
+                                        'kingston'     => 'kingston.com',
+                                        'xpg'          => 'xpg.com',
+                                        'adata'        => 'adata.com',
+                                        'crucial'      => 'crucial.com',
+                                        'corsair'      => 'corsair.com',
+                                        'seagate'      => 'seagate.com',
+                                        'western digital' => 'westerndigital.com',
+                                        'wd'           => 'westerndigital.com',
+                                        'samsung'      => 'samsung.com',
+                                        'thermaltake'  => 'thermaltake.com',
+                                        'cooler master'=> 'coolermaster.com',
+
+                                        // Periféricos y Gabinetes Nacionales / Regionales
+                                        'acteck'       => 'acteck.com',
+                                        'logitech'     => 'logitech.com',
+                                        'vorago'       => 'voragolive.com',
+                                        'razer'        => 'razer.com',
+                                        'redragon'     => 'redragon.es',
+                                        'hyperx'       => 'hyperx.com',
+                                        'ghia'         => 'ghia.com.mx',
+
+                                        // Monitores y Pantallas
+                                        'lg'           => 'lg.com',
+                                        'benq'         => 'benq.com',
+                                        'viewsonic'    => 'viewsonic.com',
+
+                                        // Redes y Conectividad
+                                        'tp-link'      => 'tp-link.com',
+                                        'tplink'       => 'tp-link.com',
+                                        'mercusys'     => 'mercusys.com',
+                                        'cisco'        => 'cisco.com',
+                                        'ubiquiti'     => 'ui.com',
+                                        'mikrotik'     => 'mikrotik.com',
+
+                                        // Punto de Venta, Seguridad e Impresión
+                                        'ec line'      => 'eclinepos.com',
+                                        'ecline'       => 'eclinepos.com',
+                                        'evotec'       => 'grupoevotec.com.mx',
+                                        'eleventa'     => 'eleventa.com',
+                                        'epson'        => 'epson.com',
+                                        'brother'      => 'brother.com',
+                                        'canon'        => 'canon.com',
+                                        'zebra'        => 'zebra.com',
+                                        'hikvision'    => 'hikvision.com',
+                                        'dahua'        => 'dahuasecurity.com',
                                     ];
 
-                                    $brandKey = strtolower(trim($product->brand));
-                                    $domain = $brandDomains[$brandKey] ?? null;
+                                        $brandKey = strtolower(trim($product->brand));
+                                        $domain = $brandDomains[$brandKey] ?? null;
 
-                                    // Si no está en el catálogo fijo, extraer dinámicamente el dominio del link del proveedor si existe
-                                    if (!$domain && $product->supplier_link) {
-                                        $parsedUrl = parse_url($product->supplier_link);
-                                        $domain = $parsedUrl['host'] ?? null;
-                                    }
-                                @endphp
+                                        if (!$domain && $product->supplier_link) {
+                                            $parsedUrl = parse_url($product->supplier_link);
+                                            $domain = $parsedUrl['host'] ?? null;
+                                        }
+                                    @endphp
 
-                                <div class="d-inline-flex align-items-center gap-2">
-                                    @if($domain)
-                                        {{-- Carga garantizada por HTTPS mediante Google Favicons API --}}
-                                        <img src="https://www.google.com/s2/favicons?domain=https://{{ $domain }}&sz=64"
-                                             alt="{{ $product->brand }}"
-                                             class="brand-logo-img shadow-sm"
-                                             style="width: 20px; height: 20px; object-fit: contain;"
-                                             onerror="this.remove();">
-                                    @endif
-                                    <span class="badge-brand">{{ $product->brand }}</span>
-                                </div>
-                            @else
-                                <span class="badge-brand">N/A</span>
-                            @endif
-                        </td>
-                        <td class="fw-medium text-dark">${{ number_format($product->cost_price, 2) }}</td>
-                        <td>
-                            @if($product->has_margin)
-                                <span class="badge-price-suggested" title="Incluye 30% de Utilidad">
-                                    ${{ number_format($product->suggested_sale_price, 2) }} <small class="fw-bold">(+30%)</small>
-                                </span>
-                            @else
-                                <span class="badge-price-neto" title="Precio Neto (Sin Utilidad)">
-                                    ${{ number_format($product->suggested_sale_price, 2) }} <small class="fw-normal text-muted">(Neto)</small>
-                                </span>
-                            @endif
-                        </td>
-                        <td class="text-center">
-                            @if($product->supplier_link)
-                                <a href="{{ $product->supplier_link }}" target="_blank" class="btn btn-action-link text-decoration-none">
-                                    <i class="bi bi-box-arrow-up-right me-1"></i> Link
-                                </a>
-                            @else
-                                <span class="text-muted small">Sin enlace</span>
-                            @endif
-                        </td>
-                        <td class="text-end">
-                            <!-- Botón Editar -->
-                            <button class="btn btn-action-edit me-1"
-                                    title="Editar"
-                                    data-bs-toggle="modal"
-                                    data-bs-target="#editModal{{ $product->id }}">
-                                <i class="bi bi-pencil-fill"></i>
-                            </button>
+                                    <div class="d-inline-flex align-items-center gap-2">
+                                        @if($domain)
+                                            <img src="https://www.google.com/s2/favicons?domain=https://{{ $domain }}&sz=64"
+                                                 alt="{{ $product->brand }}"
+                                                 class="brand-logo-img shadow-sm"
+                                                 onerror="this.remove();">
+                                        @endif
+                                        <span class="badge-brand">{{ $product->brand }}</span>
+                                    </div>
+                                @else
+                                    <span class="badge-brand">N/A</span>
+                                @endif
+                            </td>
+                            <td class="fw-medium text-dark">${{ number_format($product->cost_price, 2) }}</td>
+                            
+                            <td class="fw-bold text-success">
+                                @if($product->has_margin)
+                                    +${{ number_format($product->margin_amount, 2) }}
+                                @else
+                                    <span class="text-muted fw-normal">$0.00</span>
+                                @endif
+                            </td>
 
-                            <!-- Botón Eliminar -->
-                            <form action="{{ route('products.destroy', $product->id) }}" method="POST" class="d-inline" onsubmit="return confirm('¿Desea eliminar este producto?');">
-                                @csrf
-                                @method('DELETE')
-                                <button type="submit" class="btn btn-action-delete" title="Eliminar">
-                                    <i class="bi bi-trash-fill"></i>
+                            <td>
+                                @if($product->has_margin)
+                                    <span class="badge-price-suggested" title="Incluye 20% de Utilidad">
+                                        ${{ number_format($product->selling_price, 2) }}
+                                    </span>
+                                @else
+                                    <span class="badge-price-neto" title="Precio Neto (Sin Utilidad)">
+                                        ${{ number_format($product->selling_price, 2) }} <small class="fw-normal text-muted">(Neto)</small>
+                                    </span>
+                                @endif
+                            </td>
+                            <td class="text-center">
+                                @if($product->supplier_link)
+                                    <a href="{{ $product->supplier_link }}" target="_blank" class="btn btn-action-link text-decoration-none">
+                                        <i class="bi bi-box-arrow-up-right me-1"></i> Link
+                                    </a>
+                                @else
+                                    <span class="text-muted small">Sin enlace</span>
+                                @endif
+                            </td>
+                            <td class="text-end">
+                                <button class="btn btn-action-edit me-1"
+                                        title="Editar"
+                                        data-bs-toggle="modal"
+                                        data-bs-target="#editModal{{ $product->id }}">
+                                    <i class="bi bi-pencil-fill"></i>
                                 </button>
-                            </form>
-                        </td>
-                    </tr>
 
-                    <!-- MODAL EDITAR PRODUCTO -->
-                    <div class="modal fade" id="editModal{{ $product->id }}" tabindex="-1" aria-hidden="true">
-                        <div class="modal-dialog modal-dialog-centered modal-lg">
-                            <div class="modal-content border-0 shadow">
-                                <div class="modal-header bg-light">
-                                    <h5 class="modal-title fw-bold">
-                                        <i class="bi bi-pencil-square text-primary me-2"></i>Editar Producto #{{ $product->id }}
-                                    </h5>
-                                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                                </div>
-                                <form action="{{ route('products.update', $product->id) }}" method="POST">
+                                <form action="{{ route('products.destroy', $product->id) }}" method="POST" class="d-inline" onsubmit="return confirm('¿Desea eliminar este producto?');">
                                     @csrf
-                                    @method('PUT')
-                                    <div class="modal-body text-start p-4">
-                                        <div class="row g-3">
-                                            <div class="col-md-6">
-                                                <label class="form-label fw-medium">Nombre del Producto / Insumo *</label>
-                                                <input type="text" name="name" class="form-control" value="{{ $product->name }}" required>
-                                            </div>
-                                            <div class="col-md-6">
-                                                <label class="form-label fw-medium">Marca</label>
-                                                <input type="text" name="brand" class="form-control" value="{{ $product->brand }}">
-                                            </div>
-                                            <div class="col-md-6">
-                                                <label class="form-label fw-medium">Precio de Costo Base ($) *</label>
-                                                <input type="number" step="0.01" name="cost_price" class="form-control" value="{{ $product->cost_price }}" required>
-                                            </div>
-                                            <div class="col-md-6 d-flex align-items-center">
-                                                <div class="form-check form-switch mt-3">
-                                                    <input class="form-check-input" type="checkbox" name="has_margin" value="1" id="hasMargin{{ $product->id }}" {{ $product->has_margin ? 'checked' : '' }}>
-                                                    <label class="form-check-label fw-medium" for="hasMargin{{ $product->id }}">
-                                                        Aplicar margen de utilidad (+30%)
-                                                    </label>
+                                    @method('DELETE')
+                                    <button type="submit" class="btn btn-action-delete" title="Eliminar">
+                                        <i class="bi bi-trash-fill"></i>
+                                    </button>
+                                </form>
+                            </td>
+                        </tr>
+
+                        <!-- MODAL EDITAR PRODUCTO -->
+                        <div class="modal fade" id="editModal{{ $product->id }}" tabindex="-1" aria-hidden="true">
+                            <div class="modal-dialog modal-dialog-centered modal-lg">
+                                <div class="modal-content border-0 shadow">
+                                    <div class="modal-header bg-light">
+                                        <h5 class="modal-title fw-bold">
+                                            <i class="bi bi-pencil-square text-primary me-2"></i>Editar Producto
+                                        </h5>
+                                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                    </div>
+                                    <form action="{{ route('products.update', $product->id) }}" method="POST">
+                                        @csrf
+                                        @method('PUT')
+                                        <div class="modal-body text-start p-4">
+                                            <div class="row g-3">
+                                                <div class="col-md-6">
+                                                    <label class="form-label fw-medium">Nombre del Producto / Insumo *</label>
+                                                    <input type="text" name="name" class="form-control" value="{{ $product->name }}" required>
+                                                </div>
+                                                <div class="col-md-6">
+                                                    <label class="form-label fw-medium">Marca</label>
+                                                    <input type="text" name="brand" class="form-control" value="{{ $product->brand }}">
+                                                </div>
+                                                <div class="col-md-6">
+                                                    <label class="form-label fw-medium">Precio de Costo Base ($) *</label>
+                                                    <input type="number" step="0.01" name="cost_price" class="form-control" value="{{ $product->cost_price }}" required>
+                                                </div>
+                                                <div class="col-md-6 d-flex align-items-center">
+                                                    <div class="form-check form-switch mt-3">
+                                                        <input class="form-check-input" type="checkbox" name="has_margin" value="1" id="hasMargin{{ $product->id }}" {{ $product->has_margin ? 'checked' : '' }}>
+                                                        <label class="form-check-label fw-medium" for="hasMargin{{ $product->id }}">
+                                                            Aplicar margen de utilidad (+20%)
+                                                        </label>
+                                                    </div>
+                                                </div>
+                                                <div class="col-md-12">
+                                                    <label class="form-label fw-medium">Enlace al Proveedor</label>
+                                                    <input type="url" name="supplier_link" class="form-control" value="{{ $product->supplier_link }}">
+                                                </div>
+                                                <div class="col-md-12">
+                                                    <label class="form-label fw-medium">Especificaciones / Descripción</label>
+                                                    <textarea name="description" class="form-control" rows="3">{{ $product->description }}</textarea>
                                                 </div>
                                             </div>
-                                            <div class="col-md-12">
-                                                <label class="form-label fw-medium">Enlace al Proveedor</label>
-                                                <input type="url" name="supplier_link" class="form-control" value="{{ $product->supplier_link }}">
-                                            </div>
-                                            <div class="col-md-12">
-                                                <label class="form-label fw-medium">Especificaciones / Descripción</label>
-                                                <textarea name="description" class="form-control" rows="3">{{ $product->description }}</textarea>
-                                            </div>
                                         </div>
-                                    </div>
-                                    <div class="modal-footer bg-light">
-                                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
-                                        <button type="submit" class="btn btn-purple px-4">Guardar Cambios</button>
-                                    </div>
-                                </form>
+                                        <div class="modal-footer bg-light">
+                                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                                            <button type="submit" class="btn btn-purple px-4">Guardar Cambios</button>
+                                        </div>
+                                    </form>
+                                </div>
                             </div>
                         </div>
-                    </div>
-                    @empty
-                    <tr>
-                        <td colspan="7" class="text-center py-4 text-muted">
-                            <i class="bi bi-inbox fs-2 d-block mb-2"></i> No se encontraron productos registrados.
-                        </td>
-                    </tr>
-                    @endforelse
-                </tbody>
-            </table>
-        </div>
-
-        <!-- Paginación con Bootstrap 5 -->
-        @if($products->hasPages())
-            <div class="d-flex flex-column flex-md-row justify-content-between align-items-center mt-3 gap-2">
-                <small class="text-muted">
-                    Mostrando {{ $products->firstItem() }} a {{ $products->lastItem() }} de {{ $products->total() }} registros
-                </small>
-                <div>
-                    {{ $products->links('pagination::bootstrap-5') }}
-                </div>
+                        @empty
+                        <tr>
+                            <td colspan="8" class="text-center py-4 text-muted">
+                                <i class="bi bi-inbox fs-2 d-block mb-2"></i> No se encontraron productos registrados.
+                            </td>
+                        </tr>
+                        @endforelse
+                    </tbody>
+                </table>
             </div>
-        @endif
+
+            <!-- Paginación -->
+            @if($products->hasPages())
+                <div class="d-flex flex-column flex-md-row justify-content-between align-items-center mt-3 gap-2">
+                    <small class="text-muted">
+                        Mostrando {{ $products->firstItem() }} a {{ $products->lastItem() }} de {{ $products->total() }} registros
+                    </small>
+                    <div>
+                        {{ $products->links('pagination::bootstrap-5') }}
+                    </div>
+                </div>
+            @endif
+        </div>
 
     </div>
 </div>
@@ -359,7 +422,7 @@
                             <div class="form-check form-switch mt-3">
                                 <input class="form-check-input" type="checkbox" name="has_margin" value="1" id="hasMarginCreate" checked>
                                 <label class="form-check-label fw-medium" for="hasMarginCreate">
-                                    Aplicar margen de utilidad (+30%)
+                                    Aplicar margen de utilidad (+20%)
                                 </label>
                             </div>
                         </div>
@@ -382,16 +445,41 @@
     </div>
 </div>
 
-<!-- Script Filtrado Instantáneo -->
+<!-- JS con Fetch: Realiza la consulta a MongoDB mientras escribes -->
 <script>
-    document.getElementById('tableSearch').addEventListener('keyup', function() {
-        let value = this.value.toLowerCase();
-        let rows = document.querySelectorAll('#dataTable tbody tr');
+    let searchTimer;
+    const searchInput = document.getElementById('tableSearch');
+    const tableWrapper = document.getElementById('table-wrapper');
 
-        rows.forEach(row => {
-            let text = row.textContent.toLowerCase();
-            row.style.display = text.includes(value) ? '' : 'none';
-        });
+    searchInput.addEventListener('input', function() {
+        clearTimeout(searchTimer);
+        const term = this.value;
+
+        searchTimer = setTimeout(() => {
+            const fetchUrl = `{{ route('products.index') }}?search=${encodeURIComponent(term)}`;
+
+            fetch(fetchUrl, {
+                headers: {
+                    'X-Requested-With': 'XMLHttpRequest'
+                }
+            })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                return response.text();
+            })
+            .then(htmlText => {
+                const parser = new DOMParser();
+                const doc = parser.parseFromString(htmlText, 'text/html');
+                const newContentNode = doc.getElementById('table-wrapper');
+                
+                if (newContentNode && tableWrapper) {
+                    tableWrapper.innerHTML = newContentNode.innerHTML;
+                }
+            })
+            .catch(err => console.error('Error al realizar búsqueda en MongoDB:', err));
+        }, 250);
     });
 </script>
 @endsection

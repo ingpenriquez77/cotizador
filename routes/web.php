@@ -7,10 +7,11 @@ use App\Http\Controllers\QuoteController;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Route;
 
-// Endpoint para verificar el estatus del sistema (Health Check)
+// Endpoint para verificar el estatus del sistema (Health Check adaptable a MongoDB)
 Route::get('/health', function () {
     try {
-        DB::connection()->getPdo();
+        // Comando nativo 'ping' para verificar conexión activa con MongoDB
+        DB::connection()->command(['ping' => 1]);
 
         return response()->json([
             'status'    => 'OK',
@@ -29,7 +30,7 @@ Route::get('/health', function () {
     }
 })->name('health.check');
 
-// Ruta raíz: Redirige directamente al nombre de la ruta de login
+// Ruta raíz: Redirige directamente al login
 Route::get('/', function () {
     return redirect()->route('login');
 });
@@ -42,13 +43,14 @@ Route::middleware(['auth'])->group(function () {
         return view('dashboard');
     })->name('dashboard');
 
-    // Perfil
+    // Perfil de Usuario
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 
-    // Cotizaciones PDF y CRUD (Viewer y Admin pueden entrar)
+    // Cotizaciones: PDF, envío de email y CRUD
     Route::get('quotes/{quote}/pdf', [QuoteController::class, 'pdf'])->name('quotes.pdf');
+    Route::post('quotes/{quote}/send-email', [QuoteController::class, 'sendEmail'])->name('quotes.send-email');
     Route::resource('quotes', QuoteController::class);
 
     // Módulos protegidos Exclusivos para Administrador
@@ -59,5 +61,5 @@ Route::middleware(['auth'])->group(function () {
 
 });
 
-// Cargar rutas de autenticación
+// Cargar rutas de autenticación de Laravel Breeze / Jetstream
 require __DIR__.'/auth.php';

@@ -25,6 +25,13 @@
                     </div>
                 @endif
 
+                @if(session('error'))
+                    <div class="alert alert-danger alert-dismissible fade show m-3" role="alert">
+                        {{ session('error') }}
+                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                    </div>
+                @endif
+
                 <div class="table-responsive">
                     <table class="table table-hover align-middle mb-0">
                         <thead class="table-light">
@@ -61,9 +68,17 @@
                                                 <i class="bi bi-file-earmark-pdf"></i>
                                             </a>
 
+                                            {{-- Botón Sobre -> Enviar por Correo --}}
+                                            <form action="{{ route('quotes.send-email', $quote->id) }}" method="POST" class="d-inline" onsubmit="return confirm('¿Deseas enviar esta cotización por correo electrónico al cliente?');">
+                                                @csrf
+                                                <button type="submit" class="btn btn-outline-primary" title="Enviar por Correo">
+                                                    <i class="bi bi-envelope"></i>
+                                                </button>
+                                            </form>
+
                                             {{-- Acciones Restringidas: Solo Administrador --}}
                                             @if(auth()->user()->isAdmin())
-                                                {{-- Botón Lapizito -> Editar --}}
+                                                {{-- Botón Lápiz -> Editar --}}
                                                 <a href="{{ route('quotes.edit', $quote->id) }}" class="btn btn-outline-warning" title="Editar">
                                                     <i class="bi bi-pencil"></i>
                                                 </a>

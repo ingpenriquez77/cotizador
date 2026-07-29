@@ -6,16 +6,22 @@ use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
 {
+    /**
+     * Run the migrations.
+     * Esta tabla vive en la BD SQL (Aiven).
+     */
     public function up(): void
     {
         Schema::create('quotes', function (Blueprint $table) {
             $table->id();
             $table->string('folio')->unique(); // Ej: COT-2026-001
-            $table->foreignId('client_id')->constrained()->onDelete('cascade');
+            
+            // Referencia al ID de MongoDB (ObjectID en formato String)
+            $table->string('client_id')->index(); 
 
             // Financieros
             $table->decimal('subtotal', 10, 2)->default(0.00);
-            $table->decimal('tax', 10, 2)->default(0.00); // IVA (opcional)
+            $table->decimal('tax', 10, 2)->default(0.00); // IVA
             $table->decimal('total', 10, 2)->default(0.00);
 
             // Estado y control
@@ -28,6 +34,9 @@ return new class extends Migration
         });
     }
 
+    /**
+     * Reverse the migrations.
+     */
     public function down(): void
     {
         Schema::dropIfExists('quotes');

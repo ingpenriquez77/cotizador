@@ -1,7 +1,7 @@
 <?php
 
 use Illuminate\Database\Migrations\Migration;
-use Illuminate\Database\Schema\Blueprint;
+use MongoDB\Laravel\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
@@ -11,29 +11,25 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('users', function (Blueprint $table) {
-            $table->id();
-            $table->string('name');
-            $table->string('email')->unique();
-            $table->timestamp('email_verified_at')->nullable();
-            $table->string('password');
-            $table->rememberToken();
-            $table->timestamps();
+        // 1. Colección de usuarios
+        Schema::connection('mongodb')->create('users', function (Blueprint $collection) {
+            // Índice único para evitar correos duplicados
+            $collection->unique('email');
+            
+            // Índice para acelerar búsquedas o filtros por rol (admin / viewer)
+            $collection->index('role');
         });
 
-        Schema::create('password_reset_tokens', function (Blueprint $table) {
-            $table->string('email')->primary();
-            $table->string('token');
-            $table->timestamp('created_at')->nullable();
+        // 2. Colección de tokens para restablecer contraseña
+        Schema::connection('mongodb')->create('password_reset_tokens', function (Blueprint $collection) {
+            $collection->index('email');
+            $collection->index('token');
         });
 
-        Schema::create('sessions', function (Blueprint $table) {
-            $table->string('id')->primary();
-            $table->foreignId('user_id')->nullable()->index();
-            $table->string('ip_address', 45)->nullable();
-            $table->text('user_agent')->nullable();
-            $table->longText('payload');
-            $table->integer('last_activity')->index();
+        // 3. Colección de sesiones de usuario
+        Schema::connection('mongodb')->create('sessions', function (Blueprint $collection) {
+            $collection->index('user_id');
+            $collection->index('last_activity');
         });
     }
 
@@ -42,8 +38,8 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('users');
-        Schema::dropIfExists('password_reset_tokens');
-        Schema::dropIfExists('sessions');
+        Schema::connection('mongodb')->dropIfExists('users');
+        Schema::connection('mongodb')->dropIfExists('password_reset_tokens');
+        Schema::connection('mongodb')->dropIfExists('sessions');
     }
 };

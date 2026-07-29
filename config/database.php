@@ -32,6 +32,13 @@ return [
 
     'connections' => [
 
+        // Configuraion necsaria para la conexion de MongoDB
+        'mongodb' => [
+            'driver'   => 'mongodb',
+            'dsn'      => env('DB_URI', 'mongodb://127.0.0.1:27017/cotizador_db'),
+            'database' => env('DB_DATABASE', 'cotizador_db'),
+        ],
+
         'sqlite' => [
             'driver' => 'sqlite',
             'url' => env('DB_URL'),

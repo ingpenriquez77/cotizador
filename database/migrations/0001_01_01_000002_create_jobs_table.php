@@ -1,7 +1,7 @@
 <?php
 
 use Illuminate\Database\Migrations\Migration;
-use Illuminate\Database\Schema\Blueprint;
+use MongoDB\Laravel\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
@@ -11,39 +11,21 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('jobs', function (Blueprint $table) {
-            $table->id();
-            $table->string('queue')->index();
-            $table->longText('payload');
-            $table->unsignedSmallInteger('attempts');
-            $table->unsignedInteger('reserved_at')->nullable();
-            $table->unsignedInteger('available_at');
-            $table->unsignedInteger('created_at');
+        // 1. Colección para los trabajos en cola (Jobs)
+        Schema::connection('mongodb')->create('jobs', function (Blueprint $collection) {
+            $collection->index('queue');
+            $collection->index('reserved_at');
         });
 
-        Schema::create('job_batches', function (Blueprint $table) {
-            $table->string('id')->primary();
-            $table->string('name');
-            $table->integer('total_jobs');
-            $table->integer('pending_jobs');
-            $table->integer('failed_jobs');
-            $table->longText('failed_job_ids');
-            $table->mediumText('options')->nullable();
-            $table->integer('cancelled_at')->nullable();
-            $table->integer('created_at');
-            $table->integer('finished_at')->nullable();
+        // 2. Colección para procesamiento por lotes (Job Batches)
+        Schema::connection('mongodb')->create('job_batches', function (Blueprint $collection) {
+            $collection->index('name');
         });
 
-        Schema::create('failed_jobs', function (Blueprint $table) {
-            $table->id();
-            $table->string('uuid')->unique();
-            $table->string('connection');
-            $table->string('queue');
-            $table->longText('payload');
-            $table->longText('exception');
-            $table->timestamp('failed_at')->useCurrent();
-
-            $table->index(['connection', 'queue', 'failed_at']);
+        // 3. Colección para trabajos fallidos (Failed Jobs)
+        Schema::connection('mongodb')->create('failed_jobs', function (Blueprint $collection) {
+            $collection->unique('uuid');
+            $collection->index(['connection', 'queue', 'failed_at']);
         });
     }
 
@@ -52,8 +34,8 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('jobs');
-        Schema::dropIfExists('job_batches');
-        Schema::dropIfExists('failed_jobs');
+        Schema::connection('mongodb')->dropIfExists('jobs');
+        Schema::connection('mongodb')->dropIfExists('job_batches');
+        Schema::connection('mongodb')->dropIfExists('failed_jobs');
     }
 };

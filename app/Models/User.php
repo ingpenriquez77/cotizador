@@ -6,7 +6,7 @@ use Database\Factories\UserFactory;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Attributes\Hidden;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
-use Illuminate\Foundation\Auth\User as Authenticatable;
+use MongoDB\Laravel\Auth\User as Authenticatable; // Cambio clave para la autenticación en MongoDB
 use Illuminate\Notifications\Notifiable;
 
 #[Fillable(['name', 'email', 'password', 'role'])]
@@ -17,6 +17,20 @@ class User extends Authenticatable
     use HasFactory, Notifiable;
 
     /**
+     * Define la conexión a MongoDB.
+     *
+     * @var string
+     */
+    protected $connection = 'mongodb';
+
+    /**
+     * Define la colección en MongoDB.
+     *
+     * @var string
+     */
+    protected $collection = 'users';
+
+    /**
      * Get the attributes that should be cast.
      *
      * @return array<string, string>
@@ -25,7 +39,7 @@ class User extends Authenticatable
     {
         return [
             'email_verified_at' => 'datetime',
-            'password' => 'hashed',
+            'password'          => 'hashed',
         ];
     }
 

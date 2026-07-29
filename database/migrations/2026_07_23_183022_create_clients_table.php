@@ -1,28 +1,31 @@
 <?php
 
 use Illuminate\Database\Migrations\Migration;
-use Illuminate\Database\Schema\Blueprint;
+use MongoDB\Laravel\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
 {
+    /**
+     * Run the migrations.
+     */
     public function up(): void
     {
-        Schema::create('clients', function (Blueprint $table) {
-            $table->id();
-            $table->string('business_name');       // Razon Social / Empresa
-            $table->string('contact_name');        // Persona de Contacto
-            $table->string('email')->nullable();   // Correo
-            $table->string('phone');               // Teléfono / WhatsApp
-            $table->text('address')->nullable();   // Dirección
-            $table->string('rfc')->nullable();     // RFC
-            $table->string('status')->default('activo'); // Activo / Inactivo
-            $table->timestamps();
+        Schema::connection('mongodb')->create('clients', function (Blueprint $collection) {
+            // Índices de búsqueda frecuente
+            $collection->index('business_name');
+            $collection->index('contact_name');
+            $collection->index('email');
+            $collection->index('rfc');
+            $collection->index('status');
         });
     }
 
+    /**
+     * Reverse the migrations.
+     */
     public function down(): void
     {
-        Schema::dropIfExists('clients');
+        Schema::connection('mongodb')->dropIfExists('clients');
     }
 };

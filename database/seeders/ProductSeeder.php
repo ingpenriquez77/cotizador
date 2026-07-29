@@ -7,6 +7,9 @@ use Illuminate\Database\Seeder;
 
 class ProductSeeder extends Seeder
 {
+    /**
+     * Run the database seeds.
+     */
     public function run(): void
     {
         $products = [
@@ -95,7 +98,7 @@ class ProductSeeder extends Seeder
                 'name'          => 'eleventa Punto de Venta MonoCaja',
                 'description'   => 'eleventa Punto de Venta MonoCaja (Licencia Anual)',
                 'cost_price'    => 1499.00,
-                'has_margin'    => false, // Licencia a precio sugerido fijo
+                'has_margin'    => false,
                 'supplier_link' => 'https://eleventa.com/comprar',
             ],
             [
@@ -119,7 +122,13 @@ class ProductSeeder extends Seeder
         foreach ($products as $product) {
             Product::updateOrCreate(
                 ['name' => $product['name']],
-                $product
+                [
+                    'brand'         => $product['brand'],
+                    'description'   => $product['description'],
+                    'cost_price'    => (float) $product['cost_price'],
+                    'has_margin'    => (bool) $product['has_margin'],
+                    'supplier_link' => $product['supplier_link'],
+                ]
             );
         }
     }

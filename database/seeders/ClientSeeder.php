@@ -15,9 +15,9 @@ class ClientSeeder extends Seeder
         Client::updateOrCreate(
             ['business_name' => 'Modelorama Np-Mod Emiliano Zapata'],
             [
-                'contact_name' => 'Juani',
+                'contact_name' => 'Juana SArabia',
                 'phone'        => '6677976114',
-                'email'        => 'ejemplo@ejemplo.com',
+                'email'        => 'pedroenriquez81@gmail.cm',
                 'address'      => 'Blvd. Emiliano Zapata, Culiacán, Sin.',
                 'status'       => 'activo',
             ]

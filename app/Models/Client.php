@@ -2,20 +2,20 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Factories\HasFactory;
-use Illuminate\Database\Eloquent\Model;
+use MongoDB\Laravel\Eloquent\Model;
 
 class Client extends Model
 {
-    use HasFactory;
+    protected $connection = 'mongodb';
+    protected $collection = 'clients';
 
     protected $fillable = [
         'business_name',
         'contact_name',
-        'email',
         'phone',
+        'email',
+        'status',
         'address',
         'rfc',
-        'status',
     ];
 }

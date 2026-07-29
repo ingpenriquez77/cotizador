@@ -1,7 +1,7 @@
 <?php
 
 use Illuminate\Database\Migrations\Migration;
-use Illuminate\Database\Schema\Blueprint;
+use MongoDB\Laravel\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
@@ -11,16 +11,19 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('cache', function (Blueprint $table) {
-            $table->string('key')->primary();
-            $table->mediumText('value');
-            $table->bigInteger('expiration')->index();
+        // 1. Colección para el Cache
+        Schema::connection('mongodb')->create('cache', function (Blueprint $collection) {
+            // Índice único para la clave del cache
+            $collection->unique('key');
+            
+            // Índice en el tiempo de expiración para agilizar búsquedas/limpieza
+            $collection->index('expiration');
         });
 
-        Schema::create('cache_locks', function (Blueprint $table) {
-            $table->string('key')->primary();
-            $table->string('owner');
-            $table->bigInteger('expiration')->index();
+        // 2. Colección para Bloqueos de Cache (Cache Locks / Atomic Locks)
+        Schema::connection('mongodb')->create('cache_locks', function (Blueprint $collection) {
+            $collection->unique('key');
+            $collection->index('expiration');
         });
     }
 
@@ -29,7 +32,7 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('cache');
-        Schema::dropIfExists('cache_locks');
+        Schema::connection('mongodb')->dropIfExists('cache');
+        Schema::connection('mongodb')->dropIfExists('cache_locks');
     }
 };

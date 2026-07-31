@@ -10,6 +10,7 @@ class Product extends Model
     protected $collection = 'products';
 
     protected $fillable = [
+        'category_id', // Campo para relacionar la Categoría
         'name',
         'brand',
         'description',
@@ -28,6 +29,14 @@ class Product extends Model
             'cost_price' => 'float',
             'has_margin' => 'boolean',
         ];
+    }
+
+    /**
+     * Relación: Un producto pertenece a una categoría.
+     */
+    public function category()
+    {
+        return $this->belongsTo(Category::class);
     }
 
     /**

@@ -2,6 +2,7 @@
 
 namespace Database\Seeders;
 
+use App\Models\Category;
 use App\Models\Product;
 use Illuminate\Database\Seeder;
 
@@ -12,8 +13,25 @@ class ProductSeeder extends Seeder
      */
     public function run(): void
     {
+        // 1. Aseguramos que existan las categorías primero
+        $this->call(CategorySeeder::class);
+
+        // 2. Mapeo de IDs de Categorías desde la colección de MongoDB
+        $procCat    = Category::where('name', 'Procesador')->first()?->id;
+        $motherCat  = Category::where('name', 'Tarjeta Madre')->first()?->id;
+        $ramCat     = Category::where('name', 'Memoria RAM')->first()?->id;
+        $ssdCat     = Category::where('name', 'Almacenamiento Principal')->first()?->id;
+        $caseCat    = Category::where('name', 'Gabinete')->first()?->id;
+        $monitorCat = Category::where('name', 'Monitores')->first()?->id;
+        $kitCat     = Category::where('name', 'Kits de Teclado y Mouse')->first()?->id;
+        $posCat     = Category::where('name', 'Punto de Venta / POS')->first()?->id;
+        $upsCat     = Category::where('name', 'Protección / No Break')->first()?->id;
+        $swCat      = Category::where('name', 'Licenciamiento de Software')->first()?->id;
+        $serviceCat = Category::where('name', 'Servicios Profesionales')->first()?->id;
+
         $products = [
             [
+                'category_id'   => $procCat,
                 'brand'         => 'AMD',
                 'name'          => 'Procesador AMD Ryzen 3 3200G',
                 'description'   => 'Procesador AMD Ryzen 3 3200G con AMD Radeon Graphics, Socket AM4, 4GHz, 4 Núcleos, 4MB Caché - Incluye Disipador',
@@ -22,6 +40,7 @@ class ProductSeeder extends Seeder
                 'supplier_link' => 'https://www.cyberpuerta.mx/Computo-Hardware/Componentes/Procesadores/Procesadores-para-PC/Procesador-AMD-Ryzen-3-3200G-con-AMD-Radeon-Graphics-Socket-AM4-4GHz-4-Nucleos-4MB-Cache-Incluye-Disipador.html',
             ],
             [
+                'category_id'   => $motherCat,
                 'brand'         => 'ASUS',
                 'name'          => 'Tarjeta Madre ASUS PRIME A520M-K',
                 'description'   => 'Tarjeta Madre ASUS PRIME A520M-K, Micro-ATX, Socket AM4, AMD A520, 64GB DDR4, HDMI para AMD',
@@ -30,6 +49,7 @@ class ProductSeeder extends Seeder
                 'supplier_link' => 'https://www.cyberpuerta.mx/Computo-Hardware/Componentes/Tarjetas-Madre/Tarjeta-Madre-ASUS-PRIME-A520M-K-Micro-ATX-Socket-AM4-AMD-A520-64GB-DDR4-HDMI-para-AMD.html',
             ],
             [
+                'category_id'   => $ramCat,
                 'brand'         => 'XPG',
                 'name'          => 'Memoria RAM XPG GAMMIX D35 DDR4 8GB',
                 'description'   => 'Memoria RAM XPG GAMMIX D35 DDR4, 3200MHz, 8GB, CL16, XMP',
@@ -38,6 +58,7 @@ class ProductSeeder extends Seeder
                 'supplier_link' => 'https://www.cyberpuerta.mx/Computo-Hardware/Memorias-RAM-y-Flash/Memorias-RAM-para-PC/Memoria-RAM-XPG-GAMMIX-D35-DDR4-3200MHz-8GB-CL16-XMP.html',
             ],
             [
+                'category_id'   => $ssdCat,
                 'brand'         => 'Kingston',
                 'name'          => 'SSD Kingston SNV3S NVMe 500GB',
                 'description'   => 'SSD Kingston SNV3S NVMe, 500GB, M.2, 3000 MB/s Escritura, 5000 MB/s Lectura, PCI Express 4.0',
@@ -46,6 +67,7 @@ class ProductSeeder extends Seeder
                 'supplier_link' => 'https://www.cyberpuerta.mx/Computo-Hardware/Discos-Duros-SSD-NAS/SSD/SSD-Kingston-SNV3S-NVMe-500GB-M-2-3000-MB-s-Escritura-5000-MB-s-Lectura-PCI-Express-4-0-1.html',
             ],
             [
+                'category_id'   => $caseCat,
                 'brand'         => 'Acteck',
                 'name'          => 'Gabinete Acteck Performance II GI215',
                 'description'   => 'Gabinete Acteck Performance II GI215, Micro-Tower, Micro-ATX/Mini-ITX, USB 2.0, con Fuente de 500W, sin Ventiladores Instalados, Negro',
@@ -54,6 +76,7 @@ class ProductSeeder extends Seeder
                 'supplier_link' => 'https://www.cyberpuerta.mx/Computo-Hardware/Componentes/Gabinetes/Gabinete-Acteck-Performance-II-GI215-Micro-Tower-Micro-ATX-Mini-ITX-USB-2-0-con-Fuente-de-500W-sin-Ventiladores-Instalados-Negro.html',
             ],
             [
+                'category_id'   => $monitorCat,
                 'brand'         => 'Acteck',
                 'name'          => 'Monitor Acteck Captive Lite CL215 LCD 21.5"',
                 'description'   => 'Monitor Acteck Captive Lite CL215 LCD 21.5", 1920x1080 Full HD, 60Hz, HDMI, Bocinas Integradas, Negro',
@@ -62,6 +85,7 @@ class ProductSeeder extends Seeder
                 'supplier_link' => 'https://www.cyberpuerta.mx/Computo-Hardware/Monitores/Monitores/Monitor-Acteck-Captive-Lite-CL215-LCD-21-5-1920x1080-Full-HD-60Hz-HDMI-Bocinas-Integradas-Negro.html',
             ],
             [
+                'category_id'   => $kitCat,
                 'brand'         => 'Logitech',
                 'name'          => 'Kit de Teclado y Mouse Logitech MK120',
                 'description'   => 'Kit de Teclado y Mouse Logitech MK120, Alámbrico, USB, Negro, Español',
@@ -70,6 +94,7 @@ class ProductSeeder extends Seeder
                 'supplier_link' => 'https://www.cyberpuerta.mx/Computo-Hardware/Dispositivos-de-Entrada/Kits-de-Teclado-y-Mouse/Kit-de-Teclado-y-Mouse-Logitech-MK120-Alambrico-USB-Negro-Espanol-2.html',
             ],
             [
+                'category_id'   => $posCat,
                 'brand'         => 'EC Line',
                 'name'          => 'Cajón de Dinero EC Line EC-G5100-II-GREY',
                 'description'   => 'Cajón de Dinero EC Line EC-G5100-II-GREY, Negro',
@@ -78,6 +103,7 @@ class ProductSeeder extends Seeder
                 'supplier_link' => 'https://www.cyberpuerta.mx/Punto-de-Venta-POS/Cajones-de-dinero/Cajon-de-Dinero-EC-Line-EC-G5100-II-GREY-Negro.html',
             ],
             [
+                'category_id'   => $posCat,
                 'brand'         => 'Evotec',
                 'name'          => 'Impresora de Tickets Evotec EV-3005',
                 'description'   => 'Evotec EV-3005 Impresora de Tickets, Térmica Directa, USB, 203 x 203 DPI',
@@ -86,6 +112,7 @@ class ProductSeeder extends Seeder
                 'supplier_link' => 'https://www.cyberpuerta.mx/Punto-de-Venta-POS/Impresoras-de-Tickets/Evotec-EV-3005-Impresora-de-Tickets-Termica-Directa-USB-203-x-203-DPI.html',
             ],
             [
+                'category_id'   => $upsCat,
                 'brand'         => 'Vorago',
                 'name'          => 'No Break Vorago UPS-301 Offline 800 VA',
                 'description'   => 'No Break Vorago UPS-301 Offline, 480W, 800 VA, Entrada 110V - 120V, Salida 110V - 120V',
@@ -94,14 +121,16 @@ class ProductSeeder extends Seeder
                 'supplier_link' => 'https://www.cyberpuerta.mx/Energia/Proteccion-Contra-Descargas/No-Break-UPS/No-Break-UPS/No-Break-Vorago-UPS-301-Offline-480W-800-VA-Entrada-110V-120V-Salida-110V-120V.html',
             ],
             [
+                'category_id'   => $posCat,
                 'brand'         => 'Evotec',
                 'name'          => 'Evotec EV-3001',
                 'description'   => 'Evotec EV-3001 Lector de Código de Barras Láser, 1D - Incluye Cable USB',
-                'cost_price'    => 392,
+                'cost_price'    => 392.00,
                 'has_margin'    => true,
                 'supplier_link' => 'https://www.cyberpuerta.mx/Punto-de-Venta-POS/Lectores-y-Terminales/Lectores-de-Codigo-de-Barras/Evotec-EV-3001-Lector-de-Codigo-de-Barras-Laser-1D-Incluye-Cable-USB.html',
             ],
             [
+                'category_id'   => $swCat,
                 'brand'         => 'eleventa',
                 'name'          => 'eleventa Punto de Venta MonoCaja',
                 'description'   => 'eleventa Punto de Venta MonoCaja (Licencia Anual)',
@@ -110,6 +139,7 @@ class ProductSeeder extends Seeder
                 'supplier_link' => 'https://eleventa.com/comprar',
             ],
             [
+                'category_id'   => $serviceCat,
                 'brand'         => 'Servicio',
                 'name'          => 'Capacitación (10 Horas)',
                 'description'   => 'Capacitación de uso del sistema (10 Horas)',
@@ -118,10 +148,11 @@ class ProductSeeder extends Seeder
                 'supplier_link' => null,
             ],
             [
+                'category_id'   => $serviceCat,
                 'brand'         => 'Servicio',
                 'name'          => 'Instalación',
                 'description'   => 'Servicio de instalación y configuración de equipos',
-                'cost_price'    => 500.00,
+                'cost_price'    => 700.00,
                 'has_margin'    => false,
                 'supplier_link' => null,
             ],
@@ -131,6 +162,7 @@ class ProductSeeder extends Seeder
             Product::updateOrCreate(
                 ['name' => $product['name']],
                 [
+                    'category_id'   => $product['category_id'],
                     'brand'         => $product['brand'],
                     'description'   => $product['description'],
                     'cost_price'    => (float) $product['cost_price'],

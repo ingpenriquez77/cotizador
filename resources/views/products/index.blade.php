@@ -178,69 +178,13 @@
                                 @if($product->brand)
                                     @php
                                         $brandDomains = [
-                                        // Procesadores y Gráficos
-                                        'amd'          => 'amd.com',
-                                        'intel'        => 'intel.com',
-                                        'nvidia'       => 'nvidia.com',
-
-                                        // Fabricantes de Computadoras y Laptops
-                                        'asus'         => 'asus.com',
-                                        'hp'           => 'hp.com',
-                                        'hewlett packard' => 'hp.com',
-                                        'dell'         => 'dell.com',
-                                        'lenovo'       => 'lenovo.com',
-                                        'acer'         => 'acer.com',
-                                        'msi'          => 'msi.com',
-                                        'apple'        => 'apple.com',
-                                        'gigabyte'     => 'gigabyte.com',
-
-                                        // Componentes, Memorias y Almacenamiento
-                                        'kingston'     => 'kingston.com',
-                                        'xpg'          => 'xpg.com',
-                                        'adata'        => 'adata.com',
-                                        'crucial'      => 'crucial.com',
-                                        'corsair'      => 'corsair.com',
-                                        'seagate'      => 'seagate.com',
-                                        'western digital' => 'westerndigital.com',
-                                        'wd'           => 'westerndigital.com',
-                                        'samsung'      => 'samsung.com',
-                                        'thermaltake'  => 'thermaltake.com',
-                                        'cooler master'=> 'coolermaster.com',
-
-                                        // Periféricos y Gabinetes Nacionales / Regionales
-                                        'acteck'       => 'acteck.com',
-                                        'logitech'     => 'logitech.com',
-                                        'vorago'       => 'voragolive.com',
-                                        'razer'        => 'razer.com',
-                                        'redragon'     => 'redragon.es',
-                                        'hyperx'       => 'hyperx.com',
-                                        'ghia'         => 'ghia.com.mx',
-
-                                        // Monitores y Pantallas
-                                        'lg'           => 'lg.com',
-                                        'benq'         => 'benq.com',
-                                        'viewsonic'    => 'viewsonic.com',
-
-                                        // Redes y Conectividad
-                                        'tp-link'      => 'tp-link.com',
-                                        'tplink'       => 'tp-link.com',
-                                        'mercusys'     => 'mercusys.com',
-                                        'cisco'        => 'cisco.com',
-                                        'ubiquiti'     => 'ui.com',
-                                        'mikrotik'     => 'mikrotik.com',
-
-                                        // Punto de Venta, Seguridad e Impresión
-                                        'ec line'      => 'eclinepos.com',
-                                        'ecline'       => 'eclinepos.com',
-                                        'evotec'       => 'grupoevotec.com.mx',
-                                        'eleventa'     => 'eleventa.com',
-                                        'epson'        => 'epson.com',
-                                        'brother'      => 'brother.com',
-                                        'canon'        => 'canon.com',
-                                        'zebra'        => 'zebra.com',
-                                        'hikvision'    => 'hikvision.com',
-                                        'dahua'        => 'dahuasecurity.com',
-                                    ];
+                                            'amd' => 'amd.com', 'intel' => 'intel.com', 'nvidia' => 'nvidia.com',
+                                            'asus' => 'asus.com', 'hp' => 'hp.com', 'dell' => 'dell.com',
+                                            'lenovo' => 'lenovo.com', 'acer' => 'acer.com', 'msi' => 'msi.com',
+                                            'apple' => 'apple.com', 'gigabyte' => 'gigabyte.com', 'kingston' => 'kingston.com',
+                                            'xpg' => 'xpg.com', 'adata' => 'adata.com', 'corsair' => 'corsair.com',
+                                            'samsung' => 'samsung.com', 'logitech' => 'logitech.com'
+                                        ];
 
                                         $brandKey = strtolower(trim($product->brand));
                                         $domain = $brandDomains[$brandKey] ?? null;
@@ -327,17 +271,35 @@
                                         @method('PUT')
                                         <div class="modal-body text-start p-4">
                                             <div class="row g-3">
+                                                <div class="col-md-12">
+                                                    <label class="form-label fw-medium">Enlace al Proveedor</label>
+                                                    <div class="input-group">
+                                                        <input type="url" name="supplier_link" id="link_edit_{{ $product->id }}" class="form-control" value="{{ $product->supplier_link }}" placeholder="https://">
+                                                        <button class="btn btn-outline-primary" type="button" onclick="scrapeProductUrl('link_edit_{{ $product->id }}', 'editModal{{ $product->id }}')">
+                                                            <i class="bi bi-magic me-1"></i> Auto-llenar
+                                                        </button>
+                                                    </div>
+                                                </div>
                                                 <div class="col-md-6">
-                                                    <label class="form-label fw-medium">Nombre del Producto / Insumo *</label>
-                                                    <input type="text" name="name" class="form-control" value="{{ $product->name }}" required>
+                                                    <label class="form-label fw-medium">Categoría</label>
+                                                    <select name="category_id" class="form-select">
+                                                        <option value="">-- Sin Categoría --</option>
+                                                        @foreach($categories as $cat)
+                                                            <option value="{{ $cat->id }}" {{ $product->category_id == $cat->id ? 'selected' : '' }}>{{ $cat->name }}</option>
+                                                        @endforeach
+                                                    </select>
                                                 </div>
                                                 <div class="col-md-6">
                                                     <label class="form-label fw-medium">Marca</label>
-                                                    <input type="text" name="brand" class="form-control" value="{{ $product->brand }}">
+                                                    <input type="text" name="brand" class="form-control brand-input" value="{{ $product->brand }}">
+                                                </div>
+                                                <div class="col-md-12">
+                                                    <label class="form-label fw-medium">Nombre del Producto / Insumo *</label>
+                                                    <input type="text" name="name" class="form-control name-input" value="{{ $product->name }}" required>
                                                 </div>
                                                 <div class="col-md-6">
                                                     <label class="form-label fw-medium">Precio de Costo Base ($) *</label>
-                                                    <input type="number" step="0.01" name="cost_price" class="form-control" value="{{ $product->cost_price }}" required>
+                                                    <input type="number" step="0.01" name="cost_price" class="form-control cost-input" value="{{ $product->cost_price }}" required>
                                                 </div>
                                                 <div class="col-md-6 d-flex align-items-center">
                                                     <div class="form-check form-switch mt-3">
@@ -348,12 +310,8 @@
                                                     </div>
                                                 </div>
                                                 <div class="col-md-12">
-                                                    <label class="form-label fw-medium">Enlace al Proveedor</label>
-                                                    <input type="url" name="supplier_link" class="form-control" value="{{ $product->supplier_link }}">
-                                                </div>
-                                                <div class="col-md-12">
                                                     <label class="form-label fw-medium">Especificaciones / Descripción</label>
-                                                    <textarea name="description" class="form-control" rows="3">{{ $product->description }}</textarea>
+                                                    <textarea name="description" class="form-control desc-input" rows="3">{{ $product->description }}</textarea>
                                                 </div>
                                             </div>
                                         </div>
@@ -406,17 +364,36 @@
                 @csrf
                 <div class="modal-body p-4">
                     <div class="row g-3">
+                        <div class="col-md-12">
+                            <label class="form-label fw-medium">Enlace al Proveedor (Opcional)</label>
+                            <div class="input-group">
+                                <input type="url" name="supplier_link" id="link_create" class="form-control" placeholder="https://proveedor.com/producto">
+                                <button class="btn btn-outline-primary" type="button" onclick="scrapeProductUrl('link_create', 'createModal')">
+                                    <i class="bi bi-magic me-1"></i> Auto-llenar
+                                </button>
+                            </div>
+                            <small class="text-muted fs-7">Pega un enlace del producto y haz clic en Auto-llenar para extraer sus datos automáticamente.</small>
+                        </div>
                         <div class="col-md-6">
-                            <label class="form-label fw-medium">Nombre del Producto / Insumo *</label>
-                            <input type="text" name="name" class="form-control" placeholder="Ej. Cámara IP 1080p" required>
+                            <label class="form-label fw-medium">Categoría</label>
+                            <select name="category_id" class="form-select">
+                                <option value="">-- Seleccionar Categoría --</option>
+                                @foreach($categories as $cat)
+                                    <option value="{{ $cat->id }}">{{ $cat->name }}</option>
+                                @endforeach
+                            </select>
                         </div>
                         <div class="col-md-6">
                             <label class="form-label fw-medium">Marca</label>
-                            <input type="text" name="brand" class="form-control" placeholder="Ej. Hikvision, Cisco, Servicio">
+                            <input type="text" name="brand" class="form-control brand-input" placeholder="Ej. Hikvision, Cisco, Asus">
+                        </div>
+                        <div class="col-md-12">
+                            <label class="form-label fw-medium">Nombre del Producto / Insumo *</label>
+                            <input type="text" name="name" class="form-control name-input" placeholder="Ej. Cámara IP 1080p" required>
                         </div>
                         <div class="col-md-6">
                             <label class="form-label fw-medium">Precio de Costo Base ($) *</label>
-                            <input type="number" step="0.01" name="cost_price" class="form-control" placeholder="0.00" required>
+                            <input type="number" step="0.01" name="cost_price" class="form-control cost-input" placeholder="0.00" required>
                         </div>
                         <div class="col-md-6 d-flex align-items-center">
                             <div class="form-check form-switch mt-3">
@@ -427,12 +404,8 @@
                             </div>
                         </div>
                         <div class="col-md-12">
-                            <label class="form-label fw-medium">Enlace al Proveedor (Opcional)</label>
-                            <input type="url" name="supplier_link" class="form-control" placeholder="https://proveedor.com/producto">
-                        </div>
-                        <div class="col-md-12">
                             <label class="form-label fw-medium">Especificaciones / Descripción</label>
-                            <textarea name="description" class="form-control" rows="3" placeholder="Detalles o características técnicas opcionales"></textarea>
+                            <textarea name="description" class="form-control desc-input" rows="3" placeholder="Detalles o características técnicas opcionales"></textarea>
                         </div>
                     </div>
                 </div>
@@ -445,7 +418,7 @@
     </div>
 </div>
 
-<!-- JS con Fetch: Realiza la consulta a MongoDB mientras escribes -->
+<!-- JS con Fetch: Realiza la consulta a MongoDB y Web Scraping -->
 <script>
     let searchTimer;
     const searchInput = document.getElementById('tableSearch');
@@ -459,16 +432,9 @@
             const fetchUrl = `{{ route('products.index') }}?search=${encodeURIComponent(term)}`;
 
             fetch(fetchUrl, {
-                headers: {
-                    'X-Requested-With': 'XMLHttpRequest'
-                }
+                headers: { 'X-Requested-With': 'XMLHttpRequest' }
             })
-            .then(response => {
-                if (!response.ok) {
-                    throw new Error(`HTTP error! status: ${response.status}`);
-                }
-                return response.text();
-            })
+            .then(response => response.text())
             .then(htmlText => {
                 const parser = new DOMParser();
                 const doc = parser.parseFromString(htmlText, 'text/html');
@@ -478,8 +444,55 @@
                     tableWrapper.innerHTML = newContentNode.innerHTML;
                 }
             })
-            .catch(err => console.error('Error al realizar búsqueda en MongoDB:', err));
+            .catch(err => console.error('Error al realizar búsqueda:', err));
         }, 250);
     });
+
+    // Función JS para extraer la información mediante el Backend en Laravel
+    function scrapeProductUrl(inputId, modalId) {
+        const urlInput = document.getElementById(inputId);
+        const url = urlInput ? urlInput.value.trim() : '';
+
+        if (!url) {
+            alert('Por favor, ingresa una URL válida del producto.');
+            return;
+        }
+
+        const modal = document.getElementById(modalId);
+        const btn = event.currentTarget;
+        const originalText = btn.innerHTML;
+
+        btn.disabled = true;
+        btn.innerHTML = `<span class="spinner-border spinner-border-sm me-1"></span> Consultando...`;
+
+        fetch("{{ route('products.scrape') }}", {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRF-TOKEN': '{{ csrf_token() }}'
+            },
+            body: JSON.stringify({ url: url })
+        })
+        .then(res => res.json())
+        .then(data => {
+            btn.disabled = false;
+            btn.innerHTML = originalText;
+
+            if (data.success) {
+                if (data.name) modal.querySelector('.name-input').value = data.name;
+                if (data.brand) modal.querySelector('.brand-input').value = data.brand;
+                if (data.cost_price) modal.querySelector('.cost-input').value = data.cost_price;
+                if (data.description) modal.querySelector('.desc-input').value = data.description;
+            } else {
+                alert(data.error || 'No se pudieron extraer automáticamente todos los datos.');
+            }
+        })
+        .catch(err => {
+            btn.disabled = false;
+            btn.innerHTML = originalText;
+            console.error('Error:', err);
+            alert('Ocurrió un error al intentar consultar la página del proveedor.');
+        });
+    }
 </script>
 @endsection

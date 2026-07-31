@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\CategoryController;
 use App\Http\Controllers\ClientController;
 use App\Http\Controllers\ProductController;
 use App\Http\Controllers\ProfileController;
@@ -69,6 +70,10 @@ Route::middleware(['auth'])->group(function () {
     // Módulos protegidos Exclusivos para Administrador
     Route::middleware('admin')->group(function () {
         Route::resource('clients', ClientController::class);
+        Route::resource('categories', CategoryController::class);
+        
+        // Scraping por URL de Producto
+        Route::post('products/scrape-url', [ProductController::class, 'scrapeUrl'])->name('products.scrape');
         Route::resource('products', ProductController::class);
     });
 

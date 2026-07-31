@@ -11,7 +11,7 @@
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
     <!-- OverlayScrollbars -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/overlayscrollbars@2.10.1/styles/overlayscrollbars.min.css">
-    <!-- AdminLTE 4 CSS (cdnjs - Estable y sin bloqueos ORB) -->
+    <!-- AdminLTE 4 CSS -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/admin-lte/4.0.0-beta2/css/adminlte.min.css">
 </head>
 <body class="layout-fixed sidebar-expand-lg bg-body-tertiary">
@@ -31,7 +31,6 @@
                     <li class="nav-item dropdown">
                         <a class="nav-link dropdown-toggle d-flex align-items-center gap-2" href="#" data-bs-toggle="dropdown">
                             <span class="d-none d-md-inline fw-semibold">{{ Auth::user()->name ?? 'Usuario' }}</span>
-                            {{-- Badge de Rol --}}
                             @if(Auth::user()->isAdmin())
                                 <span class="badge bg-primary-subtle text-primary border border-primary-subtle rounded-pill">Admin</span>
                             @else
@@ -79,6 +78,14 @@
                                 <a href="{{ route('clients.index') }}" class="nav-link {{ request()->routeIs('clients.*') ? 'active' : '' }}">
                                     <i class="nav-icon bi bi-people"></i>
                                     <p>Clientes</p>
+                                </a>
+                            </li>
+
+                            <!-- Categorías -->
+                            <li class="nav-item">
+                                <a href="{{ route('categories.index') }}" class="nav-link {{ request()->routeIs('categories.*') ? 'active' : '' }}">
+                                    <i class="nav-icon bi bi-tags"></i>
+                                    <p>Categorías</p>
                                 </a>
                             </li>
 
@@ -133,7 +140,6 @@
     <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.8/dist/umd/popper.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/overlayscrollbars@2.10.1/browser/overlayscrollbars.browser.es6.min.js"></script>
-    <!-- AdminLTE 4 JS (cdnjs - Estable) -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/admin-lte/4.0.0-beta2/js/adminlte.min.js"></script>
 </body>
 </html>

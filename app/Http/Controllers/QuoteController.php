@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Quote;
 use App\Models\Client;
 use App\Models\Product;
+use App\Models\Category;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Mail;
 use App\Mail\QuoteShipped;
@@ -25,13 +26,16 @@ class QuoteController extends Controller
         }
 
         $clients = Client::orderBy('business_name')->get();
-        $products = Product::orderBy('name')->get();
+        // Carga de productos incluyendo su relación con la categoría
+        $products = Product::with('category')->orderBy('name')->get();
+        // Carga de categorías con sus productos ordenadas
+        $categories = Category::with('products')->orderBy('name')->get();
 
         // Generador de folio consecutivo dinámico (Ej: COT-2026-001)
         $nextId = Quote::count() + 1;
         $folio = 'COT-' . date('Y') . '-' . str_pad($nextId, 3, '0', STR_PAD_LEFT);
 
-        return view('quotes.create', compact('clients', 'products', 'folio'));
+        return view('quotes.create', compact('clients', 'products', 'categories', 'folio'));
     }
 
     public function store(Request $request)
@@ -71,7 +75,7 @@ class QuoteController extends Controller
             ];
         }
 
-        // 2. Creación directa del documento Quote (Sin DB::transaction)
+        // 2. Creación directa del documento Quote
         $quote = Quote::create([
             'folio'       => $request->folio,
             'client_id'   => $request->client_id,
@@ -96,7 +100,7 @@ class QuoteController extends Controller
 
     public function show($id)
     {
-        $quote = Quote::with(['client', 'items.product'])->findOrFail($id);
+        $quote = Quote::with(['client', 'items.product.category'])->findOrFail($id);
         return view('quotes.show', compact('quote'));
     }
 
@@ -126,9 +130,10 @@ class QuoteController extends Controller
 
         $quote->load('items');
         $clients = Client::all();
-        $products = Product::all();
+        $products = Product::with('category')->get();
+        $categories = Category::with('products')->get();
 
-        return view('quotes.edit', compact('quote', 'clients', 'products'));
+        return view('quotes.edit', compact('quote', 'clients', 'products', 'categories'));
     }
 
     public function update(Request $request, Quote $quote)
@@ -196,7 +201,6 @@ class QuoteController extends Controller
 
     public function sendEmail(Quote $quote)
     {
-        // Cargar la relación del cliente para obtener su email
         $quote->load('client');
 
         if (!$quote->client || !$quote->client->email) {
@@ -204,10 +208,8 @@ class QuoteController extends Controller
         }
 
         try {
-            // Enviar correo
             Mail::to($quote->client->email)->send(new QuoteShipped($quote));
 
-            // Actualizar estatus a "enviada"
             $quote->update(['status' => 'enviada']);
 
             return redirect()->back()->with('success', 'Cotización enviada exitosamente a ' . $quote->client->email);
